@@ -41,10 +41,11 @@ class HttpHandlerDownload implements HttpHandler {
 
 			boolean preparedRequestedFile = false;
 			boolean folder = false;
+			String filePathString = null;
 			try {
 				final Headers requestHeaders = httpExchange.getRequestHeaders();
 
-				String filePathString = requestHeaders.getFirst("filePathString");
+				filePathString = requestHeaders.getFirst("filePathString");
 
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
 				final boolean useSandbox = Boolean.parseBoolean(useSandboxString);
@@ -62,7 +63,7 @@ class HttpHandlerDownload implements HttpHandler {
 				Logger.printLine(filePathString);
 
 				if (!IoUtils.fileExists(filePathString)) {
-					Logger.printWarning("The requested file does not exist:" +
+					Logger.printWarning("the requested file does not exist:" +
 							System.lineSeparator() + filePathString);
 
 				} else {
@@ -79,7 +80,7 @@ class HttpHandlerDownload implements HttpHandler {
 				}
 
 			} catch (final Exception exc) {
-				Logger.printError("failed to prepare requested file!");
+				Logger.printError("failed to prepare requested file");
 				Logger.printException(exc);
 			}
 
@@ -105,6 +106,9 @@ class HttpHandlerDownload implements HttpHandler {
 					IOUtils.copyLarge(inputStream, outputStream, buffer);
 				}
 			}
+
+			Logger.printStatus("Download completed successfully for file path:" +
+					System.lineSeparator() + filePathString);
 
 			Logger.printStatus("Response sent successfully.");
 

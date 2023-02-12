@@ -143,7 +143,8 @@ public class FileSynchronizerHttpsClient {
 					zipFileExtractor.work();
 					final boolean extractZipSuccess = zipFileExtractor.isSuccess();
 					if (extractZipSuccess) {
-						Logger.printStatus("Download request completed successfully.");
+						Logger.printStatus("Download request completed successfully for file path:" +
+								System.lineSeparator() + filePathString);
 					}
 				}
 			}
@@ -206,10 +207,9 @@ public class FileSynchronizerHttpsClient {
 							response.header("uploadCompletedSuccessfully");
 					final boolean uploadCompletedSuccessfully =
 							Boolean.parseBoolean(uploadCompletedSuccessfullyString);
-					if (!uploadCompletedSuccessfully) {
-						Logger.printWarning("did not complete the upload request successfully");
-					} else {
-						Logger.printStatus("Upload request completed successfully.");
+					if (uploadCompletedSuccessfully) {
+						Logger.printStatus("Upload request completed successfully for file path:" +
+								System.lineSeparator() + filePathString);
 					}
 				}
 			}

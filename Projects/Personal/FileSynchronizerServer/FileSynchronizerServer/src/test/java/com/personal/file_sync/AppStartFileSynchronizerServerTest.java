@@ -3,6 +3,7 @@ package com.personal.file_sync;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.utils.concurrency.ThreadUtils;
 import org.junit.jupiter.api.Test;
 
 class AppStartFileSynchronizerServerTest {
@@ -19,5 +20,7 @@ class AppStartFileSynchronizerServerTest {
 
 		final String[] args = cliArgList.toArray(new String[0]);
 		AppStartFileSynchronizerServer.main(args);
+
+        ThreadUtils.trySleep(Long.MAX_VALUE);
 	}
 }

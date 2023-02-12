@@ -92,6 +92,10 @@ class HttpHandlerUpload implements HttpHandler {
 						tmpZipFilePathString, filePathString, true, deleteExisting, 12, false, false);
 				zipFileExtractor.work();
 				uploadCompletedSuccessfully = zipFileExtractor.isSuccess();
+				if (uploadCompletedSuccessfully) {
+					Logger.printStatus("Upload completed successfully for file path:" +
+							System.lineSeparator() + filePathString);
+				}
 
 			} catch (final Exception exc) {
 				Logger.printError("failed to complete the upload request");
