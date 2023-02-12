@@ -1,0 +1,12 @@
+ext {
+    subProjectNames = [
+            ':FileSynchronizerClient',
+            ':FileSynchronizerServer'
+    ]
+    compileClassPaths = []
+    compileJarFilePaths = []
+    testCompileClassPaths = []
+    testCompileJarFilePaths = []
+}
+
+apply from: gradle.ext.rootDirPath + '/common_build.gradle'
