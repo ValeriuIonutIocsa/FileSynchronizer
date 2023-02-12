@@ -70,7 +70,9 @@ public final class FactoryFileSynchronizerClientSettings {
 				if (StringUtils.isBlank(ipAddr)) {
 
 					fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
-					ipAddr = fileSynchronizerSettings.getClientIpAddr();
+					if (fileSynchronizerSettings != null) {
+						ipAddr = fileSynchronizerSettings.getClientIpAddr();
+					}
 				}
 				if (StringUtils.isBlank(ipAddr)) {
 

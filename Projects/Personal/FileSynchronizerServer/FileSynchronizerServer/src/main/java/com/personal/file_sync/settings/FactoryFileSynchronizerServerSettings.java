@@ -33,7 +33,9 @@ public final class FactoryFileSynchronizerServerSettings {
 		if (StringUtils.isBlank(ipAddr)) {
 
 			fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
-			ipAddr = fileSynchronizerSettings.getServerIpAddr();
+			if (fileSynchronizerSettings != null) {
+				ipAddr = fileSynchronizerSettings.getServerIpAddr();
+			}
 		}
 		if (StringUtils.isBlank(ipAddr)) {
 

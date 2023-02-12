@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.SystemUtils;
 
+import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
 import com.utils.io.StreamUtils;
 import com.utils.log.Logger;
@@ -20,18 +21,21 @@ public final class FactoryFileSynchronizerSettings {
 		try {
 			final String fileSynchronizerSettingsPathString =
 					FactoryFileSynchronizerSettings.createFileSynchronizerSettingsPathString();
-			Logger.printProgress("loading settings from:");
-			Logger.printLine(fileSynchronizerSettingsPathString);
+			if (IoUtils.fileExists(fileSynchronizerSettingsPathString)) {
 
-			try (InputStream inputStream =
-					StreamUtils.openBufferedInputStream(fileSynchronizerSettingsPathString)) {
+				Logger.printProgress("loading settings from:");
+				Logger.printLine(fileSynchronizerSettingsPathString);
 
-				final Properties properties = new Properties();
-				properties.load(inputStream);
+				try (InputStream inputStream =
+						StreamUtils.openBufferedInputStream(fileSynchronizerSettingsPathString)) {
 
-				final String serverIpAddr = properties.getProperty("ServerIpAddr");
-				final String clientIpAddr = properties.getProperty("ClientIpAddr");
-				fileSynchronizerSettings = new FileSynchronizerSettings(serverIpAddr, clientIpAddr);
+					final Properties properties = new Properties();
+					properties.load(inputStream);
+
+					final String serverIpAddr = properties.getProperty("ServerIpAddr");
+					final String clientIpAddr = properties.getProperty("ClientIpAddr");
+					fileSynchronizerSettings = new FileSynchronizerSettings(serverIpAddr, clientIpAddr);
+				}
 			}
 
 		} catch (final Exception exc) {

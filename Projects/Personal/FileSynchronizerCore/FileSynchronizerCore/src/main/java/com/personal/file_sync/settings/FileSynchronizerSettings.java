@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.util.Properties;
 
 import com.utils.io.StreamUtils;
+import com.utils.io.folder_creators.FactoryFolderCreator;
+import com.utils.io.ro_flag_clearers.FactoryReadOnlyFlagClearer;
 import com.utils.log.Logger;
 
 public class FileSynchronizerSettings {
@@ -27,13 +29,23 @@ public class FileSynchronizerSettings {
 			Logger.printProgress("saving settings to:");
 			Logger.printLine(fileSynchronizerSettingsPathString);
 
-			try (OutputStream outputStream =
-					StreamUtils.openBufferedOutputStream(fileSynchronizerSettingsPathString)) {
+			final boolean createParentDirectoriesSuccess = FactoryFolderCreator.getInstance()
+					.createParentDirectories(fileSynchronizerSettingsPathString, true);
+			if (createParentDirectoriesSuccess) {
 
-				final Properties properties = new Properties();
-				properties.setProperty("ServerIpAddr", serverIpAddr);
-				properties.setProperty("ClientIpAddr", clientIpAddr);
-				properties.store(outputStream, "");
+				final boolean clearReadOnlyFlagFileSuccess = FactoryReadOnlyFlagClearer.getInstance()
+						.clearReadOnlyFlagFile(fileSynchronizerSettingsPathString, true);
+				if (clearReadOnlyFlagFileSuccess) {
+
+					try (OutputStream outputStream =
+							StreamUtils.openBufferedOutputStream(fileSynchronizerSettingsPathString)) {
+
+						final Properties properties = new Properties();
+						properties.setProperty("ServerIpAddr", serverIpAddr);
+						properties.setProperty("ClientIpAddr", clientIpAddr);
+						properties.store(outputStream, "");
+					}
+				}
 			}
 
 		} catch (final Exception exc) {
