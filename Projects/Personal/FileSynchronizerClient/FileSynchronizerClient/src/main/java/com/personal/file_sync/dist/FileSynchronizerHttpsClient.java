@@ -80,8 +80,8 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("File path string:");
 			String filePathString = fileSynchronizerClientSettings.getFilePathString();
 			Logger.printLine(filePathString);
-			final String hostname = fileSynchronizerClientSettings.getHostname();
-			Logger.printLine("hostname: " + hostname);
+			final String ipAddr = fileSynchronizerClientSettings.getIpAddr();
+			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
 			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
@@ -90,7 +90,7 @@ public class FileSynchronizerHttpsClient {
 			final OkHttpClient okHttpClient = createOkHttpClient();
 
 			final Request.Builder requestBuilder = new Request.Builder();
-			final String url = "https://" + hostname + ":" + port + "/download";
+			final String url = "https://" + ipAddr + ":" + port + "/download";
 			requestBuilder.url(url);
 			requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 			requestBuilder.header("filePathString", filePathString);
@@ -168,8 +168,8 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("File path string:");
 			final String filePathString = fileSynchronizerClientSettings.getFilePathString();
 			Logger.printLine(filePathString);
-			final String hostname = fileSynchronizerClientSettings.getHostname();
-			Logger.printLine("hostname: " + hostname);
+			final String ipAddr = fileSynchronizerClientSettings.getIpAddr();
+			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
 			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
@@ -184,7 +184,7 @@ public class FileSynchronizerHttpsClient {
 			if (createZipSuccess) {
 
 				final Request.Builder requestBuilder = new Request.Builder();
-				final String url = "https://" + hostname + ":" + port + "/upload";
+				final String url = "https://" + ipAddr + ":" + port + "/upload";
 				requestBuilder.url(url);
 				requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 				requestBuilder.header("filePathString", filePathString);

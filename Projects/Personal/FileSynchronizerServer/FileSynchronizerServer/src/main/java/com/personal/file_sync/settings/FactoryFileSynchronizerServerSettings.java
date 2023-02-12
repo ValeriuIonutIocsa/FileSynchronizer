@@ -28,13 +28,28 @@ public final class FactoryFileSynchronizerServerSettings {
 		final boolean debugMode = Boolean.parseBoolean(debugModeString);
 		Logger.setDebugMode(debugMode);
 
-		final String hostname = cliArgsByNameMap.get("hostname");
-		if (StringUtils.isBlank(hostname)) {
+		String ipAddr = cliArgsByNameMap.get("ipAddr");
+		FileSynchronizerSettings fileSynchronizerSettings = null;
+		if (StringUtils.isBlank(ipAddr)) {
 
-			Logger.printWarning("missing CLI argument \"hostname\"");
+			fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
+			ipAddr = fileSynchronizerSettings.getServerIpAddr();
+		}
+		if (StringUtils.isBlank(ipAddr)) {
+
+			Logger.printWarning("missing CLI argument \"ipAddr\" and also IP address is not cached");
 			fileSynchronizerServerSettings = null;
 
 		} else {
+			if (fileSynchronizerSettings == null) {
+				fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
+			}
+			if (fileSynchronizerSettings != null) {
+
+				fileSynchronizerSettings.setServerIpAddr(ipAddr);
+				fileSynchronizerSettings.save();
+			}
+
 			final String portString = cliArgsByNameMap.get("port");
 			final int port = StrUtils.tryParsePositiveInt(portString);
 			if (port < 0) {
@@ -65,7 +80,7 @@ public final class FactoryFileSynchronizerServerSettings {
 								"FileSynchronizer", "uploads");
 
 						fileSynchronizerServerSettings = new FileSynchronizerServerSettings(
-								hostname, port, backlog, threadCount,
+								ipAddr, port, backlog, threadCount,
 								tmpFolderPathString, sandboxFolderPathString);
 					}
 				}

@@ -4,7 +4,7 @@ import com.utils.string.StrUtils;
 
 public class FileSynchronizerServerSettings {
 
-	private final String hostname;
+	private final String ipAddr;
 	private final int port;
 	private final int backlog;
 	private final int threadCount;
@@ -12,14 +12,14 @@ public class FileSynchronizerServerSettings {
 	private final String sandboxFilePathString;
 
 	FileSynchronizerServerSettings(
-			final String hostname,
+			final String ipAddr,
 			final int port,
 			final int backlog,
 			final int threadCount,
 			final String tmpFilePathString,
 			final String sandboxFilePathString) {
 
-		this.hostname = hostname;
+		this.ipAddr = ipAddr;
 		this.port = port;
 		this.backlog = backlog;
 		this.threadCount = threadCount;
@@ -32,8 +32,8 @@ public class FileSynchronizerServerSettings {
 		return StrUtils.reflectionToString(this);
 	}
 
-	public String getHostname() {
-		return hostname;
+	public String getIpAddr() {
+		return ipAddr;
 	}
 
 	public int getPort() {

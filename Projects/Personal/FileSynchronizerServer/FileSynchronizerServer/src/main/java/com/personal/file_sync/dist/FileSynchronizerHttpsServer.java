@@ -27,8 +27,8 @@ public class FileSynchronizerHttpsServer {
 
 		try {
 			Logger.printProgress("starting FileSynchronizer server");
-			final String hostname = fileSynchronizerServerSettings.getHostname();
-			Logger.printLine("hostname: " + hostname);
+			final String ipAddr = fileSynchronizerServerSettings.getIpAddr();
+			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerServerSettings.getPort();
 			Logger.printLine("port: " + port);
 			final int backlog = fileSynchronizerServerSettings.getBacklog();
@@ -36,7 +36,7 @@ public class FileSynchronizerHttpsServer {
 			final int threadCount = fileSynchronizerServerSettings.getThreadCount();
 			Logger.printLine("threadCount: " + threadCount);
 
-			final InetSocketAddress inetSocketAddress = new InetSocketAddress(hostname, port);
+			final InetSocketAddress inetSocketAddress = new InetSocketAddress(ipAddr, port);
 			final HttpsServer httpsServer = HttpsServer.create(inetSocketAddress, backlog);
 
 			final CustomSslContext customSslContext = FileSynchronizerUtils.createSslContext(
@@ -62,7 +62,7 @@ public class FileSynchronizerHttpsServer {
 			httpsServer.start();
 
 		} catch (final Exception exc) {
-			Logger.printError("failed to start HTTPS server!");
+			Logger.printError("failed to start HTTPS server");
 			Logger.printException(exc);
 		}
 	}

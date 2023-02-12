@@ -11,7 +11,7 @@ public class FileSynchronizerClientSettings {
 	private final Mode mode;
 	private final boolean useSandbox;
 	private final String filePathString;
-	private final String hostname;
+	private final String ipAddr;
 	private final int port;
 
 	private final String tmpFilePathString;
@@ -20,13 +20,13 @@ public class FileSynchronizerClientSettings {
 			final Mode mode,
 			final boolean useSandbox,
 			final String filePathString,
-			final String hostname,
+			final String ipAddr,
 			final int port) {
 
 		this.mode = mode;
 		this.useSandbox = useSandbox;
 		this.filePathString = filePathString;
-		this.hostname = hostname;
+		this.ipAddr = ipAddr;
 		this.port = port;
 
 		tmpFilePathString = PathUtils.computePath(SystemUtils.USER_HOME,
@@ -50,8 +50,8 @@ public class FileSynchronizerClientSettings {
 		return filePathString;
 	}
 
-	public String getHostname() {
-		return hostname;
+	public String getIpAddr() {
+		return ipAddr;
 	}
 
 	public int getPort() {

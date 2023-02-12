@@ -40,14 +40,14 @@ public final class FactoryFileSynchronizerClientSettings {
 			final boolean keepGoing;
 			final boolean useSandbox;
 			String filePathString;
-			final String hostname;
+			String ipAddr;
 			final int port;
 			if (mode == Mode.CLEAN) {
 
 				keepGoing = true;
 				useSandbox = false;
 				filePathString = null;
-				hostname = null;
+				ipAddr = null;
 				port = -1;
 
 			} else {
@@ -65,14 +65,29 @@ public final class FactoryFileSynchronizerClientSettings {
 					filePathString = PathUtils.computeAbsolutePath(null, null, filePathString);
 				}
 
-				hostname = cliArgsByNameMap.get("hostname");
-				if (StringUtils.isBlank(hostname)) {
+				ipAddr = cliArgsByNameMap.get("ipAddr");
+				FileSynchronizerSettings fileSynchronizerSettings = null;
+				if (StringUtils.isBlank(ipAddr)) {
 
-					Logger.printWarning("missing or invalid CLI argument \"hostname\"");
+					fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
+					ipAddr = fileSynchronizerSettings.getClientIpAddr();
+				}
+				if (StringUtils.isBlank(ipAddr)) {
+
+					Logger.printWarning("missing CLI argument \"ipAddr\" and also IP address is not cached");
 					keepGoing = false;
 					port = -1;
 
 				} else {
+					if (fileSynchronizerSettings == null) {
+						fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
+					}
+					if (fileSynchronizerSettings != null) {
+
+						fileSynchronizerSettings.setClientIpAddr(ipAddr);
+						fileSynchronizerSettings.save();
+					}
+
 					final String portString = cliArgsByNameMap.get("port");
 					port = StrUtils.tryParsePositiveInt(portString);
 					if (port < 0) {
@@ -87,7 +102,7 @@ public final class FactoryFileSynchronizerClientSettings {
 			}
 			if (keepGoing) {
 				fileSynchronizerClientSettings = new FileSynchronizerClientSettings(
-						mode, useSandbox, filePathString, hostname, port);
+						mode, useSandbox, filePathString, ipAddr, port);
 			} else {
 				fileSynchronizerClientSettings = null;
 			}
