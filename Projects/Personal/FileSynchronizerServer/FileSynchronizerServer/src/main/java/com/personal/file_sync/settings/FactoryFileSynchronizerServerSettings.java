@@ -44,13 +44,14 @@ public final class FactoryFileSynchronizerServerSettings {
 
 		} else {
 			if (fileSynchronizerSettings == null) {
+
 				fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
+				if (fileSynchronizerSettings == null) {
+					fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstanceBlank();
+				}
+				fileSynchronizerSettings.setServerIpAddr(ipAddr);
+				fileSynchronizerSettings.save();
 			}
-			if (fileSynchronizerSettings == null) {
-				fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstanceBlank();
-			}
-			fileSynchronizerSettings.setServerIpAddr(ipAddr);
-			fileSynchronizerSettings.save();
 
 			final String portString = cliArgsByNameMap.get("port");
 			final int port = StrUtils.tryParsePositiveInt(portString);
