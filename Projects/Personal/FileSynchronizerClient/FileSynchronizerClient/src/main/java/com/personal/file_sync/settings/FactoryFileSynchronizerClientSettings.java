@@ -20,7 +20,7 @@ public final class FactoryFileSynchronizerClientSettings {
 	public static FileSynchronizerClientSettings newInstance(
 			final String[] args) {
 
-		final FileSynchronizerClientSettings fileSynchronizerClientSettings;
+		FileSynchronizerClientSettings fileSynchronizerClientSettings = null;
 
 		final Map<String, String> cliArgsByNameMap = new HashMap<>();
 		CliUtils.fillCliArgsByNameMap(args, cliArgsByNameMap);
@@ -32,12 +32,11 @@ public final class FactoryFileSynchronizerClientSettings {
 		final String modeString = cliArgsByNameMap.get("mode");
 		final Mode mode = FactoryMode.newInstance(modeString);
 		if (mode == null) {
-
 			Logger.printWarning("missing or invalid CLI argument \"mode\"");
-			fileSynchronizerClientSettings = null;
 
 		} else {
 			final boolean keepGoing;
+			final boolean useFileCache;
 			final boolean useSandbox;
 			String filePathString;
 			String ipAddr;
@@ -45,12 +44,16 @@ public final class FactoryFileSynchronizerClientSettings {
 			if (mode == Mode.CLEAN) {
 
 				keepGoing = true;
+				useFileCache = false;
 				useSandbox = false;
 				filePathString = null;
 				ipAddr = null;
 				port = -1;
 
 			} else {
+				final String useFileCacheString = cliArgsByNameMap.get("useFileCache");
+				useFileCache = Boolean.parseBoolean(useFileCacheString);
+
 				final String useSandboxString = cliArgsByNameMap.get("useSandbox");
 				if (useSandboxString != null) {
 					useSandbox = Boolean.parseBoolean(useSandboxString);
@@ -104,22 +107,10 @@ public final class FactoryFileSynchronizerClientSettings {
 			}
 			if (keepGoing) {
 				fileSynchronizerClientSettings = new FileSynchronizerClientSettings(
-						mode, useSandbox, filePathString, ipAddr, port);
-			} else {
-				fileSynchronizerClientSettings = null;
+						mode, useFileCache, useSandbox, filePathString, ipAddr, port);
 			}
 		}
 
 		return fileSynchronizerClientSettings;
-	}
-
-	public static FileSynchronizerClientSettings newInstance(
-			final Mode mode,
-			final boolean useSandbox,
-			final String folderPathString,
-			final String hostname,
-			final int port) {
-
-		return new FileSynchronizerClientSettings(mode, useSandbox, folderPathString, hostname, port);
 	}
 }

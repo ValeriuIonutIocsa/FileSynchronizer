@@ -84,6 +84,8 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
+			final boolean useFileCache = fileSynchronizerClientSettings.isUseFileCache();
+			Logger.printLine("use file cache: " + useFileCache);
 			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
 			Logger.printLine("use sandbox: " + useSandbox);
 
@@ -92,6 +94,7 @@ public class FileSynchronizerHttpsClient {
 			final Request.Builder requestBuilder = new Request.Builder();
 			final String url = "https://" + ipAddr + ":" + port + "/download";
 			requestBuilder.url(url);
+			requestBuilder.header("useFileCache", String.valueOf(useFileCache));
 			requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 			requestBuilder.header("filePathString", filePathString);
 			final Request request = requestBuilder.build();
@@ -120,7 +123,9 @@ public class FileSynchronizerHttpsClient {
 
 					final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
 					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
+
 					FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, true);
+
 					final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
 							contentLength, new ProgressListenerConsole());
 					try (OutputStream outputStream = new BufferedOutputStream(
@@ -139,8 +144,9 @@ public class FileSynchronizerHttpsClient {
 					}
 
 					final ZipFileExtractor zipFileExtractor = new ZipFileExtractor(
-							tmpZipFilePathString, filePathString, true, deleteExisting, 12, false, false);
+							tmpZipFilePathString, filePathString, useFileCache, deleteExisting, 12, false, false);
 					zipFileExtractor.work();
+
 					final boolean extractZipSuccess = zipFileExtractor.isSuccess();
 					if (extractZipSuccess) {
 						Logger.printStatus("Download request completed successfully for file path:" +
@@ -173,20 +179,25 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
+			final boolean useFileCache = fileSynchronizerClientSettings.isUseFileCache();
+			Logger.printLine("use file cache: " + useFileCache);
 			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
 			Logger.printLine("use sandbox: " + useSandbox);
 
 			final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
 			tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
+
 			final ZipFileCreator zipFileCreator = new ZipFileCreator(
-					filePathString, tmpZipFilePathString, true, true, 12, false, false);
+					filePathString, tmpZipFilePathString, useFileCache, true, 12, false, false);
 			zipFileCreator.work();
+
 			final boolean createZipSuccess = zipFileCreator.isSuccess();
 			if (createZipSuccess) {
 
 				final Request.Builder requestBuilder = new Request.Builder();
 				final String url = "https://" + ipAddr + ":" + port + "/upload";
 				requestBuilder.url(url);
+				requestBuilder.header("useFileCache", String.valueOf(useFileCache));
 				requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 				requestBuilder.header("filePathString", filePathString);
 				final boolean folder = zipFileCreator.isFolder();

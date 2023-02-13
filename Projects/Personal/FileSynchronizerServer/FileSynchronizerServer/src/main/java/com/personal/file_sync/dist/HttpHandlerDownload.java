@@ -47,6 +47,10 @@ class HttpHandlerDownload implements HttpHandler {
 
 				filePathString = requestHeaders.getFirst("filePathString");
 
+				final String useFileCacheString = requestHeaders.getFirst("useFileCache");
+				final boolean useFileCache = Boolean.parseBoolean(useFileCacheString);
+				Logger.printLine("use file cache: " + useFileCache);
+
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
 				final boolean useSandbox = Boolean.parseBoolean(useSandboxString);
 				Logger.printLine("use sandbox: " + useSandbox);
@@ -73,8 +77,9 @@ class HttpHandlerDownload implements HttpHandler {
 							PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
 
 					final ZipFileCreator zipFileCreator = new ZipFileCreator(
-							filePathString, tmpZipFilePathString, true, true, 12, false, false);
+							filePathString, tmpZipFilePathString, useFileCache, true, 12, false, false);
 					zipFileCreator.work();
+
 					preparedRequestedFile = zipFileCreator.isSuccess();
 					folder = zipFileCreator.isFolder();
 				}

@@ -50,6 +50,10 @@ class HttpHandlerUpload implements HttpHandler {
 				final String folderString = requestHeaders.getFirst("folder");
 				final boolean folder = Boolean.parseBoolean(folderString);
 
+				final String useFileCacheString = requestHeaders.getFirst("useFileCache");
+				final boolean useFileCache = Boolean.parseBoolean(useFileCacheString);
+				Logger.printLine("use file cache: " + useFileCache);
+
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
 				final boolean useSandbox = Boolean.parseBoolean(useSandboxString);
 				Logger.printLine("use sandbox: " + useSandbox);
@@ -68,10 +72,11 @@ class HttpHandlerUpload implements HttpHandler {
 				final String contentLengthString = requestHeaders.getFirst("Content-length");
 				final long contentLength = StrUtils.tryParsePositiveLong(contentLengthString);
 
-				final String tmpFilePathString =
-						fileSynchronizerServerSettings.getTmpFilePathString();
+				final String tmpFilePathString = fileSynchronizerServerSettings.getTmpFilePathString();
 				tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
+
 				FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, true);
+
 				final InputStream inputStream = new ProgressInputStream(httpExchange.getRequestBody(),
 						contentLength, new ProgressListenerConsole());
 				try (OutputStream outputStream = new BufferedOutputStream(
@@ -88,9 +93,11 @@ class HttpHandlerUpload implements HttpHandler {
 					deleteExisting = false;
 					filePathString = PathUtils.computeParentPath(filePathString);
 				}
+
 				final ZipFileExtractor zipFileExtractor = new ZipFileExtractor(
-						tmpZipFilePathString, filePathString, true, deleteExisting, 12, false, false);
+						tmpZipFilePathString, filePathString, useFileCache, deleteExisting, 12, false, false);
 				zipFileExtractor.work();
+
 				uploadCompletedSuccessfully = zipFileExtractor.isSuccess();
 				if (uploadCompletedSuccessfully) {
 					Logger.printStatus("Upload completed successfully for file path:" +
