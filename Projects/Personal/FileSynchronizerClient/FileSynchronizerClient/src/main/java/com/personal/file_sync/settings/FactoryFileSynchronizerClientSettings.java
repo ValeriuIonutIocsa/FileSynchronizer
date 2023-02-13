@@ -87,11 +87,11 @@ public final class FactoryFileSynchronizerClientSettings {
 					if (fileSynchronizerSettings == null) {
 						fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
 					}
-					if (fileSynchronizerSettings != null) {
-
-						fileSynchronizerSettings.setClientIpAddr(ipAddr);
-						fileSynchronizerSettings.save();
+					if (fileSynchronizerSettings == null) {
+						fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstanceBlank();
 					}
+					fileSynchronizerSettings.setClientIpAddr(ipAddr);
+					fileSynchronizerSettings.save();
 
 					final String portString = cliArgsByNameMap.get("port");
 					port = StrUtils.tryParsePositiveInt(portString);

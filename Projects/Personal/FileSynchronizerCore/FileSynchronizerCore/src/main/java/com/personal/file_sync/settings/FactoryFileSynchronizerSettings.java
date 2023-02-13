@@ -45,6 +45,11 @@ public final class FactoryFileSynchronizerSettings {
 		return fileSynchronizerSettings;
 	}
 
+	public static FileSynchronizerSettings newInstanceBlank() {
+
+		return new FileSynchronizerSettings("", "");
+	}
+
 	static String createFileSynchronizerSettingsPathString() {
 
 		return PathUtils.computePath(SystemUtils.USER_HOME,
