@@ -17,6 +17,7 @@ import java.util.List;
 import com.utils.concurrency.no_progress.ConcurrencyUtilsSimpleRegular;
 import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
+import com.utils.io.file_copiers.FactoryFileCopier;
 import com.utils.io.file_deleters.FactoryFileDeleter;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.log.Logger;
@@ -80,18 +81,18 @@ public class ZipFileCreator {
 		if (keepGoing) {
 
 			if (deleteExisting && IoUtils.fileExists(zipArchiveFilePathString)) {
-				FactoryFileDeleter.getInstance().deleteFile(zipArchiveFilePathString, true);
+				FactoryFileDeleter.getInstance().deleteFile(zipArchiveFilePathString, false, true);
 			}
 
-			FactoryFolderCreator.getInstance().createParentDirectories(zipArchiveFilePathString, true);
+			FactoryFolderCreator.getInstance().createParentDirectories(zipArchiveFilePathString, false, true);
 
 			try (FileSystem zipFileSystem =
 					ZipUtils.createNewZipFileSystem(zipArchiveFilePathString, useTempFile)) {
 
-				final Path srcFilePath = Paths.get(srcFilePathString);
 				if (folder) {
 
 					final List<Runnable> runnableList = new ArrayList<>();
+					final Path srcFilePath = Paths.get(srcFilePathString);
 					Files.walkFileTree(srcFilePath, new SimpleFileVisitor<>() {
 
 						@Override
@@ -144,8 +145,9 @@ public class ZipFileCreator {
 
 						final String srcFileName = PathUtils.computeFileName(srcFilePathString);
 						final Path zipFilePath = zipFileSystem.getPath(srcFileName);
-						Files.copy(srcFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING,
-								StandardCopyOption.COPY_ATTRIBUTES);
+						final String zipFilePathString = zipFilePath.toString();
+						FactoryFileCopier.getInstance().copyFile(
+								srcFilePathString, zipFilePathString, true, true, false);
 						if (updateFileTimes) {
 							Files.setLastModifiedTime(zipFilePath, FileTime.from(Instant.now()));
 						}

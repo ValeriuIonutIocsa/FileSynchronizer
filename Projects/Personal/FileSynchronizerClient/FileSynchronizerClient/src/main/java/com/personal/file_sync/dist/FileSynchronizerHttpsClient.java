@@ -68,7 +68,7 @@ public class FileSynchronizerHttpsClient {
 				PathUtils.computePath(SystemUtils.USER_HOME, "FileSynchronizer");
 		Logger.printProgress("cleaning folder:");
 		Logger.printLine(fileSynchronizerFolderPathString);
-		FactoryFolderDeleter.getInstance().deleteFolder(fileSynchronizerFolderPathString, true);
+		FactoryFolderDeleter.getInstance().deleteFolder(fileSynchronizerFolderPathString, false, true);
 	}
 
 	public void executeDownloadRequest() {
@@ -124,7 +124,7 @@ public class FileSynchronizerHttpsClient {
 					final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
 					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
 
-					FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, true);
+					FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, false, true);
 
 					final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
 							contentLength, new ProgressListenerConsole());
@@ -156,12 +156,12 @@ public class FileSynchronizerHttpsClient {
 			}
 
 		} catch (final Exception exc) {
-			Logger.printError("failed to execute download request!");
+			Logger.printError("failed to execute download request");
 			Logger.printException(exc);
 
 		} finally {
 			if (IoUtils.fileExists(tmpZipFilePathString)) {
-				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true);
+				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}
 		}
 	}
@@ -231,7 +231,7 @@ public class FileSynchronizerHttpsClient {
 
 		} finally {
 			if (IoUtils.fileExists(tmpZipFilePathString)) {
-				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true);
+				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}
 		}
 	}

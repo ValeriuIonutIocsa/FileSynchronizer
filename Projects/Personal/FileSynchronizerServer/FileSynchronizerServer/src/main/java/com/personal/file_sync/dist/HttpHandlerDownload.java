@@ -123,7 +123,7 @@ class HttpHandlerDownload implements HttpHandler {
 
 		} finally {
 			if (IoUtils.fileExists(tmpZipFilePathString)) {
-				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true);
+				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}
 		}
 	}

@@ -75,7 +75,7 @@ class HttpHandlerUpload implements HttpHandler {
 				final String tmpFilePathString = fileSynchronizerServerSettings.getTmpFilePathString();
 				tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
 
-				FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, true);
+				FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, false, true);
 
 				final InputStream inputStream = new ProgressInputStream(httpExchange.getRequestBody(),
 						contentLength, new ProgressListenerConsole());
@@ -122,7 +122,7 @@ class HttpHandlerUpload implements HttpHandler {
 
 		} finally {
 			if (IoUtils.fileExists(tmpZipFilePathString)) {
-				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true);
+				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}
 		}
 	}

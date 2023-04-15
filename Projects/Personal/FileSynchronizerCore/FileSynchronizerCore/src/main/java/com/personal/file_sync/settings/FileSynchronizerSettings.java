@@ -30,11 +30,11 @@ public class FileSynchronizerSettings {
 			Logger.printLine(fileSynchronizerSettingsPathString);
 
 			final boolean createParentDirectoriesSuccess = FactoryFolderCreator.getInstance()
-					.createParentDirectories(fileSynchronizerSettingsPathString, true);
+					.createParentDirectories(fileSynchronizerSettingsPathString, false, true);
 			if (createParentDirectoriesSuccess) {
 
 				final boolean clearReadOnlyFlagFileSuccess = FactoryReadOnlyFlagClearer.getInstance()
-						.clearReadOnlyFlagFile(fileSynchronizerSettingsPathString, true);
+						.clearReadOnlyFlagFile(fileSynchronizerSettingsPathString, false, true);
 				if (clearReadOnlyFlagFileSuccess) {
 
 					try (OutputStream outputStream =

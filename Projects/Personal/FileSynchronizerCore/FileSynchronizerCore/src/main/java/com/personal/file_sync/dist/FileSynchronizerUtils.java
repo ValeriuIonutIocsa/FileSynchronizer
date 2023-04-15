@@ -31,7 +31,7 @@ final class FileSynchronizerUtils {
 					PASSWORD, PASSWORD, trustStoreInputStream, PASSWORD);
 
 		} catch (final Exception exc) {
-			Logger.printError("failed to create CustomSSLContext!");
+			Logger.printError("failed to create CustomSSLContext");
 			Logger.printException(exc);
 		}
 		return customSslContext;
