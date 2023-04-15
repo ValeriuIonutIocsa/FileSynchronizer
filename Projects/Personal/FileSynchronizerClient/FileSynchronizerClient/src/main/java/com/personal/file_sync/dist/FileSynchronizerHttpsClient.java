@@ -64,11 +64,14 @@ public class FileSynchronizerHttpsClient {
 
 	private static void clean() {
 
-		final String fileSynchronizerFolderPathString =
-				PathUtils.computePath(SystemUtils.USER_HOME, "FileSynchronizer");
+		final String fileSynchronizerTmpFolderPathString =
+				PathUtils.computePath(SystemUtils.USER_HOME, "FileSynchronizer", "tmp");
+
 		Logger.printProgress("cleaning folder:");
-		Logger.printLine(fileSynchronizerFolderPathString);
-		FactoryFolderDeleter.getInstance().deleteFolder(fileSynchronizerFolderPathString, false, true);
+		Logger.printLine(fileSynchronizerTmpFolderPathString);
+
+		FactoryFolderDeleter.getInstance()
+				.deleteFolder(fileSynchronizerTmpFolderPathString, false, true);
 	}
 
 	public void executeDownloadRequest() {
