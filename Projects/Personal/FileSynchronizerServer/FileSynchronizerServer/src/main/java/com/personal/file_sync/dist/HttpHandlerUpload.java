@@ -18,7 +18,7 @@ import com.utils.io.file_deleters.FactoryFileDeleter;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.io.progress.ProgressInputStream;
 import com.utils.io.progress.listeners.ProgressListenerConsole;
-import com.utils.io.zip.ZipFileExtractor;
+import com.utils.io.zip.ZipFileExtractor7z;
 import com.utils.log.Logger;
 import com.utils.string.StrUtils;
 
@@ -47,13 +47,6 @@ class HttpHandlerUpload implements HttpHandler {
 
 				String filePathString = requestHeaders.getFirst("filePathString");
 
-				final String folderString = requestHeaders.getFirst("folder");
-				final boolean folder = Boolean.parseBoolean(folderString);
-
-				final String useFileCacheString = requestHeaders.getFirst("useFileCache");
-				final boolean useFileCache = Boolean.parseBoolean(useFileCacheString);
-				Logger.printLine("use file cache: " + useFileCache);
-
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
 				final boolean useSandbox = Boolean.parseBoolean(useSandboxString);
 				Logger.printLine("use sandbox: " + useSandbox);
@@ -72,36 +65,36 @@ class HttpHandlerUpload implements HttpHandler {
 				final String contentLengthString = requestHeaders.getFirst("Content-length");
 				final long contentLength = StrUtils.tryParsePositiveLong(contentLengthString);
 
+				final String fileName = PathUtils.computeFileName(filePathString);
+
 				final String tmpFilePathString = fileSynchronizerServerSettings.getTmpFilePathString();
-				tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
+				tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
+						String.valueOf(System.nanoTime()), fileName + ".zip");
 
-				FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, false, true);
+				final boolean createParentDirectoriesSuccess = FactoryFolderCreator.getInstance()
+						.createParentDirectories(tmpZipFilePathString, false, true);
+				if (createParentDirectoriesSuccess) {
 
-				final InputStream inputStream = new ProgressInputStream(httpExchange.getRequestBody(),
-						contentLength, new ProgressListenerConsole());
-				try (OutputStream outputStream = new BufferedOutputStream(
-						StreamUtils.openOutputStream(tmpZipFilePathString))) {
+					final InputStream inputStream = new ProgressInputStream(httpExchange.getRequestBody(),
+							contentLength, new ProgressListenerConsole());
+					try (OutputStream outputStream = new BufferedOutputStream(
+							StreamUtils.openOutputStream(tmpZipFilePathString))) {
 
-					final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
-					IOUtils.copyLarge(inputStream, outputStream, buffer);
-				}
+						final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
+						IOUtils.copyLarge(inputStream, outputStream, buffer);
+					}
 
-				final boolean deleteExisting;
-				if (folder) {
-					deleteExisting = true;
-				} else {
-					deleteExisting = false;
 					filePathString = PathUtils.computeParentPath(filePathString);
-				}
 
-				final ZipFileExtractor zipFileExtractor = new ZipFileExtractor(
-						tmpZipFilePathString, filePathString, useFileCache, deleteExisting, 12, false, false);
-				zipFileExtractor.work();
+					final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
+							tmpZipFilePathString, filePathString, true);
+					zipFileExtractor7z.work();
 
-				uploadCompletedSuccessfully = zipFileExtractor.isSuccess();
-				if (uploadCompletedSuccessfully) {
-					Logger.printStatus("Upload completed successfully for file path:" +
-							System.lineSeparator() + filePathString);
+					uploadCompletedSuccessfully = zipFileExtractor7z.isSuccess();
+					if (uploadCompletedSuccessfully) {
+						Logger.printStatus("Upload completed successfully for file path:" +
+								System.lineSeparator() + filePathString);
+					}
 				}
 
 			} catch (final Exception exc) {

@@ -17,7 +17,7 @@ import com.utils.io.StreamUtils;
 import com.utils.io.file_deleters.FactoryFileDeleter;
 import com.utils.io.progress.ProgressInputStream;
 import com.utils.io.progress.listeners.ProgressListenerConsole;
-import com.utils.io.zip.ZipFileCreator;
+import com.utils.io.zip.ZipFileCreator7z;
 import com.utils.log.Logger;
 
 class HttpHandlerDownload implements HttpHandler {
@@ -40,16 +40,11 @@ class HttpHandlerDownload implements HttpHandler {
 			Logger.printStatus("Received download request");
 
 			boolean preparedRequestedFile = false;
-			boolean folder = false;
 			String filePathString = null;
 			try {
 				final Headers requestHeaders = httpExchange.getRequestHeaders();
 
 				filePathString = requestHeaders.getFirst("filePathString");
-
-				final String useFileCacheString = requestHeaders.getFirst("useFileCache");
-				final boolean useFileCache = Boolean.parseBoolean(useFileCacheString);
-				Logger.printLine("use file cache: " + useFileCache);
 
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
 				final boolean useSandbox = Boolean.parseBoolean(useSandboxString);
@@ -71,17 +66,18 @@ class HttpHandlerDownload implements HttpHandler {
 							System.lineSeparator() + filePathString);
 
 				} else {
+					final String fileName = PathUtils.computeFileName(filePathString);
+
 					final String tmpFilePathString =
 							fileSynchronizerServerSettings.getTmpFilePathString();
-					tmpZipFilePathString =
-							PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
+					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
+							String.valueOf(System.nanoTime()), fileName + ".zip");
 
-					final ZipFileCreator zipFileCreator = new ZipFileCreator(
-							filePathString, tmpZipFilePathString, useFileCache, true, 12, false, false);
-					zipFileCreator.work();
+					final ZipFileCreator7z zipFileCreator7z = new ZipFileCreator7z(
+							filePathString, tmpZipFilePathString, false);
+					zipFileCreator7z.work();
 
-					preparedRequestedFile = zipFileCreator.isSuccess();
-					folder = zipFileCreator.isFolder();
+					preparedRequestedFile = zipFileCreator7z.isSuccess();
 				}
 
 			} catch (final Exception exc) {
@@ -93,7 +89,6 @@ class HttpHandlerDownload implements HttpHandler {
 
 			final Headers responseHeaders = httpExchange.getResponseHeaders();
 			responseHeaders.set("preparedRequestedFile", String.valueOf(preparedRequestedFile));
-			responseHeaders.set("folder", String.valueOf(folder));
 
 			if (!preparedRequestedFile) {
 				httpExchange.sendResponseHeaders(200, 0);
@@ -123,7 +118,7 @@ class HttpHandlerDownload implements HttpHandler {
 
 		} finally {
 			if (IoUtils.fileExists(tmpZipFilePathString)) {
-				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
+				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true, true);
 			}
 		}
 	}

@@ -31,7 +31,7 @@ class AppStartFileSynchronizerClientTest {
 		cliArgList.add("--port=8090");
 
 		final String filePathString;
-		final int inputFilePathString = Integer.parseInt("11");
+		final int inputFilePathString = Integer.parseInt("1");
 		if (inputFilePathString == 1) {
 			filePathString = "D:\\tmp\\GradleSrcMan\\RegexGenerator";
 

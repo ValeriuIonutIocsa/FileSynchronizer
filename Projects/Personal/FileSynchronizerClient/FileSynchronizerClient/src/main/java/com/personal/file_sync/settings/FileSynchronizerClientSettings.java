@@ -9,7 +9,6 @@ import com.utils.string.StrUtils;
 public class FileSynchronizerClientSettings {
 
 	private final Mode mode;
-	private final boolean useFileCache;
 	private final boolean useSandbox;
 	private final String filePathString;
 	private final String ipAddr;
@@ -19,14 +18,12 @@ public class FileSynchronizerClientSettings {
 
 	FileSynchronizerClientSettings(
 			final Mode mode,
-			final boolean useFileCache,
 			final boolean useSandbox,
 			final String filePathString,
 			final String ipAddr,
 			final int port) {
 
 		this.mode = mode;
-		this.useFileCache = useFileCache;
 		this.useSandbox = useSandbox;
 		this.filePathString = filePathString;
 		this.ipAddr = ipAddr;
@@ -43,10 +40,6 @@ public class FileSynchronizerClientSettings {
 
 	public Mode getMode() {
 		return mode;
-	}
-
-	public boolean isUseFileCache() {
-		return useFileCache;
 	}
 
 	public boolean isUseSandbox() {

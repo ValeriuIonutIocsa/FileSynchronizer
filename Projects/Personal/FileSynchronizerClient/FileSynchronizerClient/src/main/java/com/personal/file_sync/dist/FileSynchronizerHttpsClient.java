@@ -24,8 +24,8 @@ import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.io.folder_deleters.FactoryFolderDeleter;
 import com.utils.io.progress.ProgressInputStream;
 import com.utils.io.progress.listeners.ProgressListenerConsole;
-import com.utils.io.zip.ZipFileCreator;
-import com.utils.io.zip.ZipFileExtractor;
+import com.utils.io.zip.ZipFileCreator7z;
+import com.utils.io.zip.ZipFileExtractor7z;
 import com.utils.log.Logger;
 import com.utils.net.proxy.ok_http.FactoryOkHttpBuilderProxyConfigurator;
 import com.utils.net.proxy.ok_http.OkHttpBuilderProxyConfigurator;
@@ -87,8 +87,6 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
-			final boolean useFileCache = fileSynchronizerClientSettings.isUseFileCache();
-			Logger.printLine("use file cache: " + useFileCache);
 			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
 			Logger.printLine("use sandbox: " + useSandbox);
 
@@ -97,7 +95,6 @@ public class FileSynchronizerHttpsClient {
 			final Request.Builder requestBuilder = new Request.Builder();
 			final String url = "https://" + ipAddr + ":" + port + "/download";
 			requestBuilder.url(url);
-			requestBuilder.header("useFileCache", String.valueOf(useFileCache));
 			requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 			requestBuilder.header("filePathString", filePathString);
 			final Request request = requestBuilder.build();
@@ -110,9 +107,6 @@ public class FileSynchronizerHttpsClient {
 				final boolean preparedRequestedFile =
 						Boolean.parseBoolean(preparedRequestedFileString);
 
-				final String folderString = response.header("folder");
-				final boolean folder = Boolean.parseBoolean(folderString);
-
 				if (!preparedRequestedFile) {
 					Logger.printWarning("did not find the requested file on the server");
 
@@ -124,36 +118,36 @@ public class FileSynchronizerHttpsClient {
 					final String contentLengthString = response.header("Content-length");
 					final long contentLength = StrUtils.tryParsePositiveLong(contentLengthString);
 
+					final String fileName = PathUtils.computeFileName(filePathString);
+
 					final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
-					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
+					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
+							String.valueOf(System.nanoTime()), fileName + ".zip");
 
-					FactoryFolderCreator.getInstance().createParentDirectories(tmpZipFilePathString, false, true);
+					final boolean createParentFolderSuccess = FactoryFolderCreator.getInstance()
+							.createParentDirectories(tmpZipFilePathString, false, true);
+					if (createParentFolderSuccess) {
 
-					final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
-							contentLength, new ProgressListenerConsole());
-					try (OutputStream outputStream = new BufferedOutputStream(
-							StreamUtils.openOutputStream(tmpZipFilePathString))) {
+						final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
+								contentLength, new ProgressListenerConsole());
+						try (OutputStream outputStream = new BufferedOutputStream(
+								StreamUtils.openOutputStream(tmpZipFilePathString))) {
 
-						final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
-						IOUtils.copyLarge(inputStream, outputStream, buffer);
-					}
+							final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
+							IOUtils.copyLarge(inputStream, outputStream, buffer);
+						}
 
-					final boolean deleteExisting;
-					if (folder) {
-						deleteExisting = true;
-					} else {
 						filePathString = PathUtils.computeParentPath(filePathString);
-						deleteExisting = false;
-					}
 
-					final ZipFileExtractor zipFileExtractor = new ZipFileExtractor(
-							tmpZipFilePathString, filePathString, useFileCache, deleteExisting, 12, false, false);
-					zipFileExtractor.work();
+						final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
+								tmpZipFilePathString, filePathString, true);
+						zipFileExtractor7z.work();
 
-					final boolean extractZipSuccess = zipFileExtractor.isSuccess();
-					if (extractZipSuccess) {
-						Logger.printStatus("Download request completed successfully for file path:" +
-								System.lineSeparator() + filePathString);
+						final boolean extractZipSuccess = zipFileExtractor7z.isSuccess();
+						if (extractZipSuccess) {
+							Logger.printStatus("Download request completed successfully for file path:" +
+									System.lineSeparator() + filePathString);
+						}
 					}
 				}
 			}
@@ -182,29 +176,27 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
-			final boolean useFileCache = fileSynchronizerClientSettings.isUseFileCache();
-			Logger.printLine("use file cache: " + useFileCache);
 			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
 			Logger.printLine("use sandbox: " + useSandbox);
 
+			final String fileName = PathUtils.computeFileName(filePathString);
+
 			final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
-			tmpZipFilePathString = PathUtils.computePath(tmpFilePathString, System.nanoTime() + ".zip");
+			tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
+					String.valueOf(System.nanoTime()), fileName + ".zip");
 
-			final ZipFileCreator zipFileCreator = new ZipFileCreator(
-					filePathString, tmpZipFilePathString, useFileCache, true, 12, false, false);
-			zipFileCreator.work();
+			final ZipFileCreator7z zipFileCreator7z = new ZipFileCreator7z(
+					filePathString, tmpZipFilePathString, false);
+			zipFileCreator7z.work();
 
-			final boolean createZipSuccess = zipFileCreator.isSuccess();
+			final boolean createZipSuccess = zipFileCreator7z.isSuccess();
 			if (createZipSuccess) {
 
 				final Request.Builder requestBuilder = new Request.Builder();
 				final String url = "https://" + ipAddr + ":" + port + "/upload";
 				requestBuilder.url(url);
-				requestBuilder.header("useFileCache", String.valueOf(useFileCache));
 				requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 				requestBuilder.header("filePathString", filePathString);
-				final boolean folder = zipFileCreator.isFolder();
-				requestBuilder.header("folder", String.valueOf(folder));
 
 				final RequestBody requestBody =
 						RequestBody.create(new File(tmpZipFilePathString), MediaType.parse("text/plain"));
@@ -234,7 +226,7 @@ public class FileSynchronizerHttpsClient {
 
 		} finally {
 			if (IoUtils.fileExists(tmpZipFilePathString)) {
-				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
+				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true, true);
 			}
 		}
 	}

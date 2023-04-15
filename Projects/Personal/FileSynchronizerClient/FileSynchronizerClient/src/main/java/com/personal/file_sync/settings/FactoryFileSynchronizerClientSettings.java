@@ -36,7 +36,6 @@ public final class FactoryFileSynchronizerClientSettings {
 
 		} else {
 			final boolean keepGoing;
-			final boolean useFileCache;
 			final boolean useSandbox;
 			String filePathString;
 			String ipAddr;
@@ -44,16 +43,12 @@ public final class FactoryFileSynchronizerClientSettings {
 			if (mode == Mode.CLEAN) {
 
 				keepGoing = true;
-				useFileCache = false;
 				useSandbox = false;
 				filePathString = null;
 				ipAddr = null;
 				port = -1;
 
 			} else {
-				final String useFileCacheString = cliArgsByNameMap.get("useFileCache");
-				useFileCache = Boolean.parseBoolean(useFileCacheString);
-
 				final String useSandboxString = cliArgsByNameMap.get("useSandbox");
 				if (useSandboxString != null) {
 					useSandbox = Boolean.parseBoolean(useSandboxString);
@@ -108,7 +103,7 @@ public final class FactoryFileSynchronizerClientSettings {
 			}
 			if (keepGoing) {
 				fileSynchronizerClientSettings = new FileSynchronizerClientSettings(
-						mode, useFileCache, useSandbox, filePathString, ipAddr, port);
+						mode, useSandbox, filePathString, ipAddr, port);
 			}
 		}
 
