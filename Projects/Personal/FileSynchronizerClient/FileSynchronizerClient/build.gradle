@@ -1,7 +1,7 @@
 ext {
     mainClass = 'com.personal.file_sync.AppStartFileSynchronizerClient'
     projectVersion = '1.0.0'
-    jarFolderPath = System.properties['user.home'] + '\\FileSynchronizer'
+    jarFolderPath = 'C:\\LocalApps\\FileSynchronizer'
 
     subProjectNames = [
             ':FileSynchronizerCore'
