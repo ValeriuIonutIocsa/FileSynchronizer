@@ -39,7 +39,7 @@ public class ZipFileExtractor7z {
 						System.lineSeparator() + zipArchiveFilePathString);
 
 			} else {
-				boolean keepGoing;
+				final boolean keepGoing;
 				if (deleteExisting) {
 
 					String zipArchiveNameWoExt = null;
@@ -56,7 +56,7 @@ public class ZipFileExtractor7z {
 								PathUtils.computePath(dstFolderPathString, zipArchiveNameWoExt);
 						if (IoUtils.directoryExists(extractedFilePathString)) {
 							keepGoing = FactoryFolderDeleter.getInstance()
-									.deleteFolder(extractedFilePathString, true, true);
+									.cleanFolder(extractedFilePathString, true, true);
 						} else if (IoUtils.regularFileExists(extractedFilePathString)) {
 							keepGoing = FactoryFileDeleter.getInstance()
 									.deleteFile(extractedFilePathString, true, true);
