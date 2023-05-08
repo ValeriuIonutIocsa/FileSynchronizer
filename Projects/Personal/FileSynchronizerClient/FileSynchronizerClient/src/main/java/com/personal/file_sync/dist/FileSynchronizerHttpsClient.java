@@ -139,8 +139,10 @@ public class FileSynchronizerHttpsClient {
 
 						filePathString = PathUtils.computeParentPath(filePathString);
 
+						final String sevenZipExecutablePathString =
+								fileSynchronizerClientSettings.getSevenZipExecutablePathString();
 						final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
-								tmpZipFilePathString, filePathString, true);
+								sevenZipExecutablePathString, tmpZipFilePathString, filePathString, true);
 						zipFileExtractor7z.work();
 
 						final boolean extractZipSuccess = zipFileExtractor7z.isSuccess();
@@ -185,8 +187,10 @@ public class FileSynchronizerHttpsClient {
 			tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
 					String.valueOf(System.nanoTime()), fileName + ".zip");
 
+			final String sevenZipExecutablePathString =
+					fileSynchronizerClientSettings.getSevenZipExecutablePathString();
 			final ZipFileCreator7z zipFileCreator7z = new ZipFileCreator7z(
-					filePathString, tmpZipFilePathString, false);
+					sevenZipExecutablePathString, filePathString, tmpZipFilePathString, false);
 			zipFileCreator7z.work();
 
 			final boolean createZipSuccess = zipFileCreator7z.isSuccess();

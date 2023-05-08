@@ -86,8 +86,10 @@ class HttpHandlerUpload implements HttpHandler {
 
 					filePathString = PathUtils.computeParentPath(filePathString);
 
+					final String sevenZipExecutablePathString =
+							fileSynchronizerServerSettings.getSevenZipExecutablePathString();
 					final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
-							tmpZipFilePathString, filePathString, true);
+							sevenZipExecutablePathString, tmpZipFilePathString, filePathString, true);
 					zipFileExtractor7z.work();
 
 					uploadCompletedSuccessfully = zipFileExtractor7z.isSuccess();

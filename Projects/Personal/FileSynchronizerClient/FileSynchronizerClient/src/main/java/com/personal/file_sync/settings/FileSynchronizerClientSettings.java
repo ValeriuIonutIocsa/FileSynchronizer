@@ -13,6 +13,7 @@ public class FileSynchronizerClientSettings {
 	private final String filePathString;
 	private final String ipAddr;
 	private final int port;
+	private final String sevenZipExecutablePathString;
 
 	private final String tmpFilePathString;
 
@@ -21,13 +22,15 @@ public class FileSynchronizerClientSettings {
 			final boolean useSandbox,
 			final String filePathString,
 			final String ipAddr,
-			final int port) {
+			final int port,
+			final String sevenZipExecutablePathString) {
 
 		this.mode = mode;
 		this.useSandbox = useSandbox;
 		this.filePathString = filePathString;
 		this.ipAddr = ipAddr;
 		this.port = port;
+		this.sevenZipExecutablePathString = sevenZipExecutablePathString;
 
 		tmpFilePathString = PathUtils.computePath(SystemUtils.USER_HOME,
 				"FileSynchronizer", "tmp", "client");
@@ -56,6 +59,10 @@ public class FileSynchronizerClientSettings {
 
 	public int getPort() {
 		return port;
+	}
+
+	public String getSevenZipExecutablePathString() {
+		return sevenZipExecutablePathString;
 	}
 
 	public String getTmpFilePathString() {

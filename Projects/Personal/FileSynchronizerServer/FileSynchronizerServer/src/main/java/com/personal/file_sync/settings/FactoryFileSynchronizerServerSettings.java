@@ -77,14 +77,22 @@ public final class FactoryFileSynchronizerServerSettings {
 						fileSynchronizerServerSettings = null;
 
 					} else {
-						final String tmpFolderPathString = PathUtils.computePath(SystemUtils.USER_HOME,
-								"FileSynchronizer", "tmp", "server");
-						final String sandboxFolderPathString = PathUtils.computePath(SystemUtils.USER_HOME,
-								"FileSynchronizer", "uploads");
+						final String sevenZipExecutablePathString = cliArgsByNameMap.get("7z_executable_path");
+						if (StringUtils.isBlank(sevenZipExecutablePathString)) {
 
-						fileSynchronizerServerSettings = new FileSynchronizerServerSettings(
-								ipAddr, port, backlog, threadCount,
-								tmpFolderPathString, sandboxFolderPathString);
+							Logger.printWarning("missing or invalid CLI argument \"7z_executable_path\"");
+							fileSynchronizerServerSettings = null;
+
+						} else {
+							final String tmpFolderPathString = PathUtils.computePath(SystemUtils.USER_HOME,
+									"FileSynchronizer", "tmp", "server");
+							final String sandboxFolderPathString = PathUtils.computePath(SystemUtils.USER_HOME,
+									"FileSynchronizer", "uploads");
+
+							fileSynchronizerServerSettings = new FileSynchronizerServerSettings(
+									ipAddr, port, backlog, threadCount, tmpFolderPathString,
+									sandboxFolderPathString, sevenZipExecutablePathString);
+						}
 					}
 				}
 			}

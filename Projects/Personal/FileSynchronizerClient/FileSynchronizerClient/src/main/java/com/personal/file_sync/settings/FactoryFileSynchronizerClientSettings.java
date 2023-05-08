@@ -40,6 +40,7 @@ public final class FactoryFileSynchronizerClientSettings {
 			String filePathString;
 			String ipAddr;
 			final int port;
+			String sevenZipExecutablePathString = null;
 			if (mode == Mode.CLEAN) {
 
 				keepGoing = true;
@@ -97,13 +98,21 @@ public final class FactoryFileSynchronizerClientSettings {
 						keepGoing = false;
 
 					} else {
-						keepGoing = true;
+						sevenZipExecutablePathString = cliArgsByNameMap.get("7z_executable_path");
+						if (StringUtils.isBlank(sevenZipExecutablePathString)) {
+
+							Logger.printWarning("missing or invalid CLI argument \"7z_executable_path\"");
+							keepGoing = false;
+
+						} else {
+							keepGoing = true;
+						}
 					}
 				}
 			}
 			if (keepGoing) {
 				fileSynchronizerClientSettings = new FileSynchronizerClientSettings(
-						mode, useSandbox, filePathString, ipAddr, port);
+						mode, useSandbox, filePathString, ipAddr, port, sevenZipExecutablePathString);
 			}
 		}
 

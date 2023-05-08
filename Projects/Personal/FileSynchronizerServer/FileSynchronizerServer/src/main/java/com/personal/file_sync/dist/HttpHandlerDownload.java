@@ -73,8 +73,10 @@ class HttpHandlerDownload implements HttpHandler {
 					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
 							String.valueOf(System.nanoTime()), fileName + ".zip");
 
+					final String sevenZipExecutablePathString =
+							fileSynchronizerServerSettings.getSevenZipExecutablePathString();
 					final ZipFileCreator7z zipFileCreator7z = new ZipFileCreator7z(
-							filePathString, tmpZipFilePathString, false);
+							sevenZipExecutablePathString, filePathString, tmpZipFilePathString, false);
 					zipFileCreator7z.work();
 
 					preparedRequestedFile = zipFileCreator7z.isSuccess();
