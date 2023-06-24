@@ -21,11 +21,12 @@ public class FileSynchronizerSettings {
 		this.clientIpAddr = clientIpAddr;
 	}
 
-	public void save() {
+	public void save(
+			final String settingsFolderPathString) {
 
 		try {
-			final String fileSynchronizerSettingsPathString =
-					FactoryFileSynchronizerSettings.createFileSynchronizerSettingsPathString();
+			final String fileSynchronizerSettingsPathString = FactoryFileSynchronizerSettings
+					.createFileSynchronizerSettingsPathString(settingsFolderPathString);
 			Logger.printProgress("saving settings to:");
 			Logger.printLine(fileSynchronizerSettingsPathString);
 

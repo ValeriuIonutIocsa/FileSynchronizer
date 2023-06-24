@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.lang3.SystemUtils;
-
 import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
 import com.utils.io.StreamUtils;
@@ -18,12 +16,13 @@ public final class FactoryFileSynchronizerIpAddresses {
 	private FactoryFileSynchronizerIpAddresses() {
 	}
 
-	public static FileSynchronizerIpAddresses newInstance() {
+	public static FileSynchronizerIpAddresses newInstance(
+            final String settingsFolderPathString) {
 
 		FileSynchronizerIpAddresses fileSynchronizerIpAddresses = null;
 		try {
-			final String fileSynchronizerIpAddressesPathString = PathUtils.computePath(SystemUtils.USER_HOME,
-					"FileSynchronizer", "FileSynchronizerIpAddresses.properties");
+			final String fileSynchronizerIpAddressesPathString =
+					PathUtils.computePath(settingsFolderPathString, "FileSynchronizerIpAddresses.properties");
 			if (IoUtils.fileExists(fileSynchronizerIpAddressesPathString)) {
 
 				Logger.printProgress("loading ip addresses from:");

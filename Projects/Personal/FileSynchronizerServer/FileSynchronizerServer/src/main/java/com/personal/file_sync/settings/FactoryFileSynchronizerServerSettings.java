@@ -28,59 +28,64 @@ public final class FactoryFileSynchronizerServerSettings {
 		final boolean debugMode = Boolean.parseBoolean(debugModeString);
 		Logger.setDebugMode(debugMode);
 
-		String ipAddr = cliArgsByNameMap.get("ipAddr");
-		FileSynchronizerSettings fileSynchronizerSettings = null;
-		if (StringUtils.isBlank(ipAddr)) {
+		final String sevenZipExecutablePathString = cliArgsByNameMap.get("7z_executable_path");
+		if (StringUtils.isBlank(sevenZipExecutablePathString)) {
 
-			fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
-			if (fileSynchronizerSettings != null) {
-				ipAddr = fileSynchronizerSettings.getServerIpAddr();
-			}
-		}
-		if (StringUtils.isBlank(ipAddr)) {
-
-			Logger.printWarning("missing CLI argument \"ipAddr\" and also IP address is not cached");
+			Logger.printWarning("missing or invalid CLI argument \"7z_executable_path\"");
 			fileSynchronizerServerSettings = null;
 
 		} else {
-			if (fileSynchronizerSettings == null) {
+			final String settingsFolderPathString =
+					PathUtils.computeParentPath(sevenZipExecutablePathString);
 
-				fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstance();
-				if (fileSynchronizerSettings == null) {
-					fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstanceBlank();
+			String ipAddr = cliArgsByNameMap.get("ipAddr");
+			FileSynchronizerSettings fileSynchronizerSettings = null;
+			if (StringUtils.isBlank(ipAddr)) {
+
+				fileSynchronizerSettings =
+						FactoryFileSynchronizerSettings.newInstance(settingsFolderPathString);
+				if (fileSynchronizerSettings != null) {
+					ipAddr = fileSynchronizerSettings.getServerIpAddr();
 				}
-				fileSynchronizerSettings.setServerIpAddr(ipAddr);
-				fileSynchronizerSettings.save();
 			}
+			if (StringUtils.isBlank(ipAddr)) {
 
-			final String portString = cliArgsByNameMap.get("port");
-			final int port = StrUtils.tryParsePositiveInt(portString);
-			if (port < 0) {
-
-				Logger.printWarning("missing or invalid CLI argument \"port\"");
+				Logger.printWarning("missing CLI argument \"ipAddr\" and also IP address is not cached");
 				fileSynchronizerServerSettings = null;
 
 			} else {
-				final String backlogString = cliArgsByNameMap.get("backlog");
-				final int backlog = StrUtils.tryParsePositiveInt(backlogString);
-				if (backlog < 0) {
+				if (fileSynchronizerSettings == null) {
 
-					Logger.printWarning("missing or invalid CLI argument \"backlog\"");
+					fileSynchronizerSettings =
+							FactoryFileSynchronizerSettings.newInstance(settingsFolderPathString);
+					if (fileSynchronizerSettings == null) {
+						fileSynchronizerSettings = FactoryFileSynchronizerSettings.newInstanceBlank();
+					}
+					fileSynchronizerSettings.setServerIpAddr(ipAddr);
+					fileSynchronizerSettings.save(settingsFolderPathString);
+				}
+
+				final String portString = cliArgsByNameMap.get("port");
+				final int port = StrUtils.tryParsePositiveInt(portString);
+				if (port < 0) {
+
+					Logger.printWarning("missing or invalid CLI argument \"port\"");
 					fileSynchronizerServerSettings = null;
 
 				} else {
-					final String threadCountString = cliArgsByNameMap.get("threadCount");
-					final int threadCount = StrUtils.tryParseInt(threadCountString);
-					if (threadCount < 0) {
+					final String backlogString = cliArgsByNameMap.get("backlog");
+					final int backlog = StrUtils.tryParsePositiveInt(backlogString);
+					if (backlog < 0) {
 
-						Logger.printWarning("missing or invalid CLI argument \"threadCount\"");
+						Logger.printWarning("missing or invalid CLI argument \"backlog\"");
 						fileSynchronizerServerSettings = null;
 
 					} else {
-						final String sevenZipExecutablePathString = cliArgsByNameMap.get("7z_executable_path");
-						if (StringUtils.isBlank(sevenZipExecutablePathString)) {
+						final String threadCountString = cliArgsByNameMap.get("threadCount");
+						final int threadCount = StrUtils.tryParseInt(threadCountString);
+						if (threadCount < 0) {
 
-							Logger.printWarning("missing or invalid CLI argument \"7z_executable_path\"");
+							Logger.printWarning("missing or invalid CLI argument \"threadCount\"");
 							fileSynchronizerServerSettings = null;
 
 						} else {
@@ -92,6 +97,7 @@ public final class FactoryFileSynchronizerServerSettings {
 							fileSynchronizerServerSettings = new FileSynchronizerServerSettings(
 									ipAddr, port, backlog, threadCount, tmpFolderPathString,
 									sandboxFolderPathString, sevenZipExecutablePathString);
+
 						}
 					}
 				}

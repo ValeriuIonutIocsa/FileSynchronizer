@@ -3,8 +3,6 @@ package com.personal.file_sync.settings;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.commons.lang3.SystemUtils;
-
 import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
 import com.utils.io.StreamUtils;
@@ -15,12 +13,13 @@ public final class FactoryFileSynchronizerSettings {
 	private FactoryFileSynchronizerSettings() {
 	}
 
-	public static FileSynchronizerSettings newInstance() {
+	public static FileSynchronizerSettings newInstance(
+			final String settingsFolderPathString) {
 
 		FileSynchronizerSettings fileSynchronizerSettings = null;
 		try {
-			final String fileSynchronizerSettingsPathString =
-					FactoryFileSynchronizerSettings.createFileSynchronizerSettingsPathString();
+			final String fileSynchronizerSettingsPathString = FactoryFileSynchronizerSettings
+					.createFileSynchronizerSettingsPathString(settingsFolderPathString);
 			if (IoUtils.fileExists(fileSynchronizerSettingsPathString)) {
 
 				Logger.printProgress("loading settings from:");
@@ -50,9 +49,9 @@ public final class FactoryFileSynchronizerSettings {
 		return new FileSynchronizerSettings("", "");
 	}
 
-	static String createFileSynchronizerSettingsPathString() {
+	static String createFileSynchronizerSettingsPathString(
+			final String settingsFolderPathString) {
 
-		return PathUtils.computePath(SystemUtils.USER_HOME,
-				"FileSynchronizer", "FileSynchronizer.properties");
+		return PathUtils.computePath(settingsFolderPathString, "FileSynchronizer.properties");
 	}
 }
