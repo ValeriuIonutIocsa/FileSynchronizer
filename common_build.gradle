@@ -114,6 +114,12 @@ task fatJar(type: Jar, dependsOn: compileJava) {
                         'Implementation-Version': project.version,
                         'Build-Time': new Date().format('dd MMM yyyy, hh:mm:ss zzz'))
             }
+        } else {
+            manifest {
+                attributes('Implementation-Title': project.name,
+                        'Implementation-Version': project.version,
+                        'Build-Time': new Date().format('dd MMM yyyy, hh:mm:ss zzz'))
+            }
         }
     } catch (Exception ignored) {
     }

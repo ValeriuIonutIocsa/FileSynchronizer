@@ -36,6 +36,8 @@ class HttpHandlerUpload implements HttpHandler {
 	public void handle(
 			final HttpExchange httpExchange) {
 
+		boolean useSandbox = false;
+
 		String tmpZipFilePathString = null;
 		try {
 			Logger.printNewLine();
@@ -48,7 +50,7 @@ class HttpHandlerUpload implements HttpHandler {
 				String filePathString = requestHeaders.getFirst("filePathString");
 
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
-				final boolean useSandbox = Boolean.parseBoolean(useSandboxString);
+				useSandbox = Boolean.parseBoolean(useSandboxString);
 				Logger.printLine("use sandbox: " + useSandbox);
 
 				if (useSandbox) {
@@ -116,7 +118,7 @@ class HttpHandlerUpload implements HttpHandler {
 			Logger.printException(exc);
 
 		} finally {
-			if (IoUtils.fileExists(tmpZipFilePathString)) {
+			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}
 		}

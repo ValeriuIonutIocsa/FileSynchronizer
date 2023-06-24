@@ -76,6 +76,8 @@ public class FileSynchronizerHttpsClient {
 
 	public void executeDownloadRequest() {
 
+		final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
+
 		String tmpZipFilePathString = null;
 		try {
 			Logger.printProgress("executing download request");
@@ -87,7 +89,6 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
-			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
 			Logger.printLine("use sandbox: " + useSandbox);
 
 			final OkHttpClient okHttpClient = createOkHttpClient();
@@ -159,13 +160,15 @@ public class FileSynchronizerHttpsClient {
 			Logger.printException(exc);
 
 		} finally {
-			if (IoUtils.fileExists(tmpZipFilePathString)) {
+			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}
 		}
 	}
 
 	public void executeUploadRequest() {
+
+		final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
 
 		String tmpZipFilePathString = null;
 		try {
@@ -178,7 +181,6 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
-			final boolean useSandbox = fileSynchronizerClientSettings.isUseSandbox();
 			Logger.printLine("use sandbox: " + useSandbox);
 
 			final String fileName = PathUtils.computeFileName(filePathString);
@@ -229,7 +231,7 @@ public class FileSynchronizerHttpsClient {
 			Logger.printException(exc);
 
 		} finally {
-			if (IoUtils.fileExists(tmpZipFilePathString)) {
+			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true, true);
 			}
 		}

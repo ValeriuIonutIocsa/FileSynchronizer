@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.personal.file_sync.ip_addr.FactoryFileSynchronizerIpAddresses;
+import com.personal.file_sync.ip_addr.FileSynchronizerIpAddresses;
 import com.personal.file_sync.settings.modes.FactoryMode;
 import com.personal.file_sync.settings.modes.Mode;
 import com.utils.cli.CliUtils;
@@ -89,6 +91,10 @@ public final class FactoryFileSynchronizerClientSettings {
 						fileSynchronizerSettings.setClientIpAddr(ipAddr);
 						fileSynchronizerSettings.save();
 					}
+
+					final FileSynchronizerIpAddresses fileSynchronizerIpAddresses =
+							FactoryFileSynchronizerIpAddresses.newInstance();
+					ipAddr = fileSynchronizerIpAddresses.computeIpAddr(ipAddr);
 
 					final String portString = cliArgsByNameMap.get("port");
 					port = StrUtils.tryParsePositiveInt(portString);
