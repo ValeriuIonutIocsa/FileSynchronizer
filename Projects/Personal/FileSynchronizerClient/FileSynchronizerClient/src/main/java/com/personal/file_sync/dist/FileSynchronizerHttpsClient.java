@@ -97,7 +97,9 @@ public class FileSynchronizerHttpsClient {
 			final String url = "https://" + ipAddr + ":" + port + "/download";
 			requestBuilder.url(url);
 			requestBuilder.header("useSandbox", String.valueOf(useSandbox));
-			requestBuilder.header("filePathString", filePathString);
+			final String encodedFilePathString =
+					FileSynchronizerUtils.encodeFilePathString(filePathString);
+			requestBuilder.header("filePathString", encodedFilePathString);
 			final Request request = requestBuilder.build();
 
 			final Call call = okHttpClient.newCall(request);
@@ -202,7 +204,9 @@ public class FileSynchronizerHttpsClient {
 				final String url = "https://" + ipAddr + ":" + port + "/upload";
 				requestBuilder.url(url);
 				requestBuilder.header("useSandbox", String.valueOf(useSandbox));
-				requestBuilder.header("filePathString", filePathString);
+				final String encodedFilePathString =
+						FileSynchronizerUtils.encodeFilePathString(filePathString);
+				requestBuilder.header("filePathString", encodedFilePathString);
 
 				final RequestBody requestBody =
 						RequestBody.create(new File(tmpZipFilePathString), MediaType.parse("text/plain"));

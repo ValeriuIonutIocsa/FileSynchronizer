@@ -47,7 +47,8 @@ class HttpHandlerUpload implements HttpHandler {
 			try {
 				final Headers requestHeaders = httpExchange.getRequestHeaders();
 
-				String filePathString = requestHeaders.getFirst("filePathString");
+				final String encodedFilePathString = requestHeaders.getFirst("filePathString");
+				String filePathString = FileSynchronizerUtils.decodeFilePathString(encodedFilePathString);
 
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
 				useSandbox = Boolean.parseBoolean(useSandboxString);

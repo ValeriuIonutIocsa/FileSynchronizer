@@ -46,7 +46,8 @@ class HttpHandlerDownload implements HttpHandler {
 			try {
 				final Headers requestHeaders = httpExchange.getRequestHeaders();
 
-				filePathString = requestHeaders.getFirst("filePathString");
+				final String encodedFilePathString = requestHeaders.getFirst("filePathString");
+				filePathString = FileSynchronizerUtils.decodeFilePathString(encodedFilePathString);
 
 				final String useSandboxString = requestHeaders.getFirst("useSandbox");
 				useSandbox = Boolean.parseBoolean(useSandboxString);

@@ -2,6 +2,9 @@ package com.personal.file_sync.dist;
 
 import java.io.InputStream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+
 import com.utils.io.ResourceFileUtils;
 import com.utils.log.Logger;
 import com.utils.net.ssl.CustomSslContext;
@@ -35,5 +38,19 @@ final class FileSynchronizerUtils {
 			Logger.printException(exc);
 		}
 		return customSslContext;
+	}
+
+	public static String encodeFilePathString(
+			String filePathString) {
+
+		final String userHomePathString = SystemUtils.USER_HOME;
+		return StringUtils.replace(filePathString, userHomePathString, "%USER_HOME%");
+	}
+
+	public static String decodeFilePathString(
+			String filePathString) {
+
+		final String userHomePathString = SystemUtils.USER_HOME;
+		return StringUtils.replace(filePathString, "%USER_HOME%", userHomePathString);
 	}
 }
