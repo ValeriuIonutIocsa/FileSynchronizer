@@ -71,7 +71,7 @@ public abstract class AbstractHttpHandlerWorker implements HttpHandlerWorker {
 		String firstQueryParameter = null;
 		final List<String> valueList = queryParameterMap.get(parameterName);
 		if (valueList != null) {
-			firstQueryParameter = valueList.get(0);
+			firstQueryParameter = valueList.getFirst();
 		}
 		return firstQueryParameter;
 	}

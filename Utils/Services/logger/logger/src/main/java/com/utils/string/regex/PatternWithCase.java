@@ -1,17 +1,22 @@
 package com.utils.string.regex;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import org.w3c.dom.Element;
 
 import com.utils.string.StrUtils;
 
-public class PatternWithCase {
+public class PatternWithCase implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -7028678646055852912L;
 
 	private final String patternString;
 	private final boolean caseSensitive;
 
-	private transient final Pattern pattern;
+	private final Pattern pattern;
 
 	PatternWithCase(
 			final String patternString,

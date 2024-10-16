@@ -3,19 +3,27 @@ package com.personal.file_sync;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.personal.file_sync.settings.modes.Mode;
+import com.utils.test.TestInputUtils;
 
 class AppStartFileSynchronizerClientTest {
 
-	@Test
-	void testMain() {
+	private static Mode mode;
+	private static String filePathString;
 
-		final List<String> cliArgList = new ArrayList<>();
-		cliArgList.add("--debug=" + Boolean.TRUE);
+	@BeforeAll
+	static void beforeAll() {
 
-		final int inputMode = Integer.parseInt("2");
+		mode = configureMode();
+		filePathString = configureFilePathString();
+	}
+
+	private static Mode configureMode() {
+
+		final int inputMode = TestInputUtils.parseTestInputNumber("2");
 		final Mode mode;
 		if (inputMode == 1) {
 			mode = Mode.DOWNLOAD;
@@ -24,12 +32,13 @@ class AppStartFileSynchronizerClientTest {
 		} else {
 			throw new RuntimeException();
 		}
-		cliArgList.add("--mode=" + mode);
+		return mode;
+	}
 
-		cliArgList.add("--useSandbox=" + Boolean.TRUE);
+	private static String configureFilePathString() {
 
 		final String filePathString;
-		final int inputFilePathString = Integer.parseInt("21");
+		final int inputFilePathString = TestInputUtils.parseTestInputNumber("21");
 		if (inputFilePathString == 1) {
 			filePathString = "D:\\tmp\\GradleSrcMan\\RegexGenerator";
 
@@ -42,6 +51,17 @@ class AppStartFileSynchronizerClientTest {
 		} else {
 			throw new RuntimeException();
 		}
+		return filePathString;
+	}
+
+	@Test
+	void testMain() {
+
+		final List<String> cliArgList = new ArrayList<>();
+		cliArgList.add("--debug=" + Boolean.TRUE);
+		cliArgList.add("--mode=" + mode);
+		cliArgList.add("--useSandbox=" + Boolean.TRUE);
+
 		cliArgList.add("--filePath=" + filePathString);
 
 		cliArgList.add("--port=8090");

@@ -34,9 +34,9 @@ class CustomLoggingInterceptor implements Interceptor {
 	}
 
 	@Override
-	@SuppressWarnings("all")
 	public Response intercept(
 			final Chain chain) throws IOException {
+
 		return interceptChain(chain);
 	}
 
@@ -47,6 +47,7 @@ class CustomLoggingInterceptor implements Interceptor {
 		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		try (PrintStream printStream = new PrintStream(
 				byteArrayOutputStream, false, Charset.defaultCharset())) {
+
 			response = writeRequestChain(chain, printStream);
 		}
 		final String str = byteArrayOutputStream.toString(Charset.defaultCharset());
@@ -95,15 +96,25 @@ class CustomLoggingInterceptor implements Interceptor {
 		printStream.println();
 
 		Response response = chain.proceed(request);
-		final ResponseBody responseBody = response.body();
+
 		final Request responseRequest = response.request();
 		final HttpUrl responseRequestUrl = responseRequest.url();
 		final Headers responseHeaders = response.headers();
 		final String responseHeadersString = responseHeaders.toString();
-		final String tmpResponseBodyString = responseBody.string();
-		final byte[] responseBodyStringBytes = tmpResponseBodyString.getBytes(Charset.defaultCharset());
-		final MediaType responseBodyContentType = responseBody.contentType();
 
+		final String tmpResponseBodyString;
+		final MediaType responseBodyContentType;
+		final ResponseBody responseBody = response.body();
+		if (responseBody != null) {
+			tmpResponseBodyString = responseBody.string();
+			responseBodyContentType = responseBody.contentType();
+		} else {
+			tmpResponseBodyString = "";
+			responseBodyContentType = MediaType.parse("text/plain;charset=utf-8");
+		}
+
+		final byte[] responseBodyStringBytes =
+				tmpResponseBodyString.getBytes(Charset.defaultCharset());
 		final ResponseBody newResponseBody =
 				ResponseBody.create(responseBodyStringBytes, responseBodyContentType);
 		response = response.newBuilder().body(newResponseBody).build();

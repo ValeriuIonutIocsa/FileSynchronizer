@@ -6,6 +6,8 @@ import com.personal.file_sync.dist.FileSynchronizerHttpsClient;
 import com.personal.file_sync.settings.FactoryFileSynchronizerClientSettings;
 import com.personal.file_sync.settings.FileSynchronizerClientSettings;
 import com.utils.log.Logger;
+import com.utils.log.progress.ProgressIndicatorConsole;
+import com.utils.log.progress.ProgressIndicators;
 
 final class AppStartFileSynchronizerClient {
 
@@ -16,6 +18,7 @@ final class AppStartFileSynchronizerClient {
 			final String[] args) {
 
 		final Instant start = Instant.now();
+		ProgressIndicators.setInstance(ProgressIndicatorConsole.INSTANCE);
 
 		final FileSynchronizerClientSettings fileSynchronizerClientSettings =
 				FactoryFileSynchronizerClientSettings.newInstance(args);

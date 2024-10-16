@@ -44,7 +44,8 @@ public class HttpHandlerImpl implements HttpHandler {
 			Logger.printNewLine();
 			Logger.printProgress("received \"" + httpHandlerWorker.getName() + "\" request");
 		}
-		try {
+		try (httpExchange) {
+
 			final Headers responseHeaders = httpExchange.getResponseHeaders();
 			final String requestMethod = httpExchange.getRequestMethod().toUpperCase();
 			if ("GET".equals(requestMethod) || "POST".equals(requestMethod)) {
@@ -94,9 +95,6 @@ public class HttpHandlerImpl implements HttpHandler {
 				responseHeaders.set("Allow", "GET,OPTIONS");
 				httpExchange.sendResponseHeaders(STATUS_METHOD_NOT_ALLOWED, NO_RESPONSE_LENGTH);
 			}
-
-		} finally {
-			httpExchange.close();
 		}
 		if (verbose) {
 			Logger.printStatus("Finished handling \"" + httpHandlerWorker.getName() + "\" request.");
