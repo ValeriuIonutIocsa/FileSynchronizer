@@ -23,7 +23,7 @@ class AppStartFileSynchronizerClientTest {
 
 	private static Mode configureMode() {
 
-		final int inputMode = TestInputUtils.parseTestInputNumber("2");
+		final int inputMode = TestInputUtils.parseTestInputNumber("1");
 		final Mode mode;
 		if (inputMode == 1) {
 			mode = Mode.DOWNLOAD;
@@ -38,7 +38,7 @@ class AppStartFileSynchronizerClientTest {
 	private static String configureFilePathString() {
 
 		final String filePathString;
-		final int inputFilePathString = TestInputUtils.parseTestInputNumber("21");
+		final int inputFilePathString = TestInputUtils.parseTestInputNumber("31");
 		if (inputFilePathString == 1) {
 			filePathString = "D:\\tmp\\GradleSrcMan\\RegexGenerator";
 
@@ -47,6 +47,10 @@ class AppStartFileSynchronizerClientTest {
 
 		} else if (inputFilePathString == 21) {
 			filePathString = "D:\\IVI_MISC\\Misc\\mnf\\test\\folder with spaces\\second folder with spaces";
+
+		} else if (inputFilePathString == 31) {
+			filePathString = "D:\\VT_IVI_MISC\\Tmp\\CRO\\ProjectAnalyzer\\" +
+					"AutomatedTesting\\PaTestData\\LocalVsRawDataTestDiff";
 
 		} else {
 			throw new RuntimeException();
@@ -57,17 +61,29 @@ class AppStartFileSynchronizerClientTest {
 	@Test
 	void testMain() {
 
+		final String ipAddr;
+		final int input = TestInputUtils.parseTestInputNumber("2");
+		if (input == 1) {
+			ipAddr = "localhost";
+		} else if (input == 2) {
+			ipAddr = "main_bench";
+		} else {
+			throw new RuntimeException();
+		}
+
+		final boolean ssl = TestInputUtils.parseTestInputBoolean("false");
+
 		final List<String> cliArgList = new ArrayList<>();
 		cliArgList.add("--debug=" + Boolean.TRUE);
 		cliArgList.add("--mode=" + mode);
 		cliArgList.add("--useSandbox=" + Boolean.TRUE);
 
 		cliArgList.add("--filePath=" + filePathString);
-
-		cliArgList.add("--port=8090");
 		cliArgList.add("--7z_executable_path=C:\\LocalApps\\FileSynchronizer\\7z.exe");
 
-		cliArgList.add("--ipAddr=localhost");
+		cliArgList.add("--ipAddr=" + ipAddr);
+		cliArgList.add("--port=8090");
+		cliArgList.add("--ssl=" + ssl);
 
 		final String[] args = cliArgList.toArray(new String[0]);
 		AppStartFileSynchronizerClient.main(args);

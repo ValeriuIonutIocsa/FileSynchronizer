@@ -3,6 +3,7 @@ package com.personal.file_sync.dist;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Instant;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ import com.utils.io.progress.ProgressInputStream;
 import com.utils.io.progress.listeners.ProgressListenerConsole;
 import com.utils.io.zip.ZipFileCreator7z;
 import com.utils.log.Logger;
+import com.utils.string.StrUtils;
 
 class HttpHandlerDownload implements HttpHandler {
 
@@ -37,9 +39,11 @@ class HttpHandlerDownload implements HttpHandler {
 		boolean useSandbox = false;
 
 		String tmpZipFilePathString = null;
+		final OutputStream resposeBodyOutputStream = httpExchange.getResponseBody();
 		try {
 			Logger.printNewLine();
-			Logger.printStatus("Received download request");
+			final Instant start = Instant.now();
+			Logger.printStatus("Received download request at " + StrUtils.createDisplayDateTimeString(start));
 
 			boolean preparedRequestedFile = false;
 			String filePathString = null;
@@ -102,26 +106,32 @@ class HttpHandlerDownload implements HttpHandler {
 				final long zipFileLength = new File(tmpZipFilePathString).length();
 				httpExchange.sendResponseHeaders(200, zipFileLength);
 
-				final OutputStream outputStream = httpExchange.getResponseBody();
 				try (InputStream inputStream = new ProgressInputStream(
 						StreamUtils.openInputStream(tmpZipFilePathString),
 						zipFileLength, new ProgressListenerConsole())) {
 
 					final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
-					IOUtils.copyLarge(inputStream, outputStream, buffer);
+					IOUtils.copyLarge(inputStream, resposeBodyOutputStream, buffer);
 				}
 			}
 
 			Logger.printStatus("Download completed successfully for file path:" +
 					System.lineSeparator() + filePathString);
 
-			Logger.printStatus("Response sent successfully.");
+			Logger.printStatus("Response sent successfully after " + StrUtils.durationToString(start));
 
 		} catch (final Exception exc) {
 			Logger.printError("failed to handle download request");
 			Logger.printException(exc);
 
 		} finally {
+			try {
+				resposeBodyOutputStream.close();
+
+			} catch (final Exception exc) {
+				Logger.printError("failed to close response output stream");
+				Logger.printException(exc);
+			}
 			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true, true);
 			}

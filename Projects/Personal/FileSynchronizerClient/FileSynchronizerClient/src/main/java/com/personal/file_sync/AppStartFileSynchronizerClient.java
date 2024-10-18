@@ -2,7 +2,7 @@ package com.personal.file_sync;
 
 import java.time.Instant;
 
-import com.personal.file_sync.dist.FileSynchronizerHttpsClient;
+import com.personal.file_sync.dist.FileSynchronizerHttpClient;
 import com.personal.file_sync.settings.FactoryFileSynchronizerClientSettings;
 import com.personal.file_sync.settings.FileSynchronizerClientSettings;
 import com.utils.log.Logger;
@@ -24,9 +24,9 @@ final class AppStartFileSynchronizerClient {
 				FactoryFileSynchronizerClientSettings.newInstance(args);
 		if (fileSynchronizerClientSettings != null) {
 
-			final FileSynchronizerHttpsClient fileSynchronizerHttpsClient =
-					new FileSynchronizerHttpsClient(fileSynchronizerClientSettings);
-			fileSynchronizerHttpsClient.work();
+			final FileSynchronizerHttpClient fileSynchronizerHttpClient =
+					new FileSynchronizerHttpClient(fileSynchronizerClientSettings);
+			fileSynchronizerHttpClient.work();
 		}
 
 		Logger.printFinishMessage(start);

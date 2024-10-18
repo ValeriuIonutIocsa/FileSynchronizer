@@ -3,6 +3,7 @@ package com.personal.file_sync.dist;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Instant;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,9 +40,11 @@ class HttpHandlerUpload implements HttpHandler {
 		boolean useSandbox = false;
 
 		String tmpZipFilePathString = null;
+		final OutputStream resposeBodyOutputStream = httpExchange.getResponseBody();
 		try {
 			Logger.printNewLine();
-			Logger.printStatus("Received upload request");
+			Instant start = Instant.now();
+			Logger.printStatus("Received upload request at " + StrUtils.createDisplayDateTimeString(start));
 
 			boolean uploadCompletedSuccessfully = false;
 			try {
@@ -107,18 +110,27 @@ class HttpHandlerUpload implements HttpHandler {
 				Logger.printException(exc);
 			}
 
-			httpExchange.getResponseHeaders().set("Content-type", "text/plain");
-			httpExchange.getResponseHeaders().set("uploadCompletedSuccessfully",
+			final Headers responseHeaders = httpExchange.getResponseHeaders();
+			responseHeaders.set("Content-type", "text/plain");
+			responseHeaders.set("uploadCompletedSuccessfully",
 					String.valueOf(uploadCompletedSuccessfully));
+
 			httpExchange.sendResponseHeaders(200, 0);
 
-			Logger.printStatus("Response sent successfully.");
+			Logger.printStatus("Response sent successfully after " + StrUtils.durationToString(start));
 
 		} catch (final Exception exc) {
 			Logger.printError("failed to handle download request");
 			Logger.printException(exc);
 
 		} finally {
+			try {
+				resposeBodyOutputStream.close();
+
+			} catch (final Exception exc) {
+				Logger.printError("failed to close response output stream");
+				Logger.printException(exc);
+			}
 			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}

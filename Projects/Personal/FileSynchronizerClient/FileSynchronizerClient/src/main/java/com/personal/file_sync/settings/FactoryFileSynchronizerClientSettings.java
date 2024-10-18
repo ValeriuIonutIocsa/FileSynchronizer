@@ -42,6 +42,7 @@ public final class FactoryFileSynchronizerClientSettings {
 			String filePathString = null;
 			String ipAddr = null;
 			int port = -1;
+			boolean ssl = true;
 			String sevenZipExecutablePathString = null;
 			if (mode == Mode.CLEAN) {
 				keepGoing = true;
@@ -110,6 +111,11 @@ public final class FactoryFileSynchronizerClientSettings {
 							keepGoing = false;
 
 						} else {
+							final String sslString = cliArgsByNameMap.get("ssl");
+							if (StringUtils.isNotBlank(sslString)) {
+								ssl = Boolean.parseBoolean(sslString);
+							}
+
 							keepGoing = true;
 						}
 					}
@@ -117,7 +123,7 @@ public final class FactoryFileSynchronizerClientSettings {
 			}
 			if (keepGoing) {
 				fileSynchronizerClientSettings = new FileSynchronizerClientSettings(
-						mode, useSandbox, filePathString, ipAddr, port, sevenZipExecutablePathString);
+						mode, useSandbox, filePathString, ipAddr, port, ssl, sevenZipExecutablePathString);
 			}
 		}
 

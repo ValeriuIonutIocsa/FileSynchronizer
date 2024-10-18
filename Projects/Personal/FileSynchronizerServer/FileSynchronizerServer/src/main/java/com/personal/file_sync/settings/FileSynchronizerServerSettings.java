@@ -6,6 +6,7 @@ public class FileSynchronizerServerSettings {
 
 	private final String ipAddr;
 	private final int port;
+	private final boolean ssl;
 	private final int backlog;
 	private final int threadCount;
 	private final String tmpFilePathString;
@@ -15,6 +16,7 @@ public class FileSynchronizerServerSettings {
 	FileSynchronizerServerSettings(
 			final String ipAddr,
 			final int port,
+			final boolean ssl,
 			final int backlog,
 			final int threadCount,
 			final String tmpFilePathString,
@@ -23,6 +25,7 @@ public class FileSynchronizerServerSettings {
 
 		this.ipAddr = ipAddr;
 		this.port = port;
+		this.ssl = ssl;
 		this.backlog = backlog;
 		this.threadCount = threadCount;
 		this.tmpFilePathString = tmpFilePathString;
@@ -41,6 +44,10 @@ public class FileSynchronizerServerSettings {
 
 	public int getPort() {
 		return port;
+	}
+
+	public boolean isSsl() {
+		return ssl;
 	}
 
 	public int getBacklog() {

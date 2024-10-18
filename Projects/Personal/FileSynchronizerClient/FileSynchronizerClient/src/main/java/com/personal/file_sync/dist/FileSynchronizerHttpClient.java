@@ -40,11 +40,11 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class FileSynchronizerHttpsClient {
+public class FileSynchronizerHttpClient {
 
 	private final FileSynchronizerClientSettings fileSynchronizerClientSettings;
 
-	public FileSynchronizerHttpsClient(
+	public FileSynchronizerHttpClient(
 			final FileSynchronizerClientSettings fileSynchronizerClientSettings) {
 
 		this.fileSynchronizerClientSettings = fileSynchronizerClientSettings;
@@ -89,12 +89,19 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
+			final boolean ssl = fileSynchronizerClientSettings.isSsl();
+			Logger.printLine("ssl: " + ssl);
 			Logger.printLine("use sandbox: " + useSandbox);
 
-			final OkHttpClient okHttpClient = createOkHttpClient();
+			final OkHttpClient okHttpClient = createOkHttpClient(ssl);
 
 			final Request.Builder requestBuilder = new Request.Builder();
-			final String url = "https://" + ipAddr + ":" + port + "/download";
+			final String url;
+			if (ssl) {
+				url = "https://" + ipAddr + ":" + port + "/download";
+			} else {
+				url = "http://" + ipAddr + ":" + port + "/download";
+			}
 			requestBuilder.url(url);
 			requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 			final String encodedFilePathString =
@@ -115,43 +122,47 @@ public class FileSynchronizerHttpsClient {
 
 				} else {
 					final ResponseBody responseBody = response.body();
+					if (responseBody == null) {
+						Logger.printError("empty response body");
 
-					Logger.printProgress("retrieving response body");
+					} else {
+						Logger.printProgress("retrieving response body");
 
-					final String contentLengthString = response.header("Content-length");
-					final long contentLength = StrUtils.tryParsePositiveLong(contentLengthString);
+						final String contentLengthString = response.header("Content-length");
+						final long contentLength = StrUtils.tryParsePositiveLong(contentLengthString);
 
-					final String fileName = PathUtils.computeFileName(filePathString);
+						final String fileName = PathUtils.computeFileName(filePathString);
 
-					final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
-					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
-							String.valueOf(System.nanoTime()), fileName + ".zip");
+						final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
+						tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
+								String.valueOf(System.nanoTime()), fileName + ".zip");
 
-					final boolean createParentFolderSuccess = FactoryFolderCreator.getInstance()
-							.createParentDirectories(tmpZipFilePathString, false, true);
-					if (createParentFolderSuccess) {
+						final boolean createParentFolderSuccess = FactoryFolderCreator.getInstance()
+								.createParentDirectories(tmpZipFilePathString, false, true);
+						if (createParentFolderSuccess) {
 
-						final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
-								contentLength, new ProgressListenerConsole());
-						try (OutputStream outputStream = new BufferedOutputStream(
-								StreamUtils.openOutputStream(tmpZipFilePathString))) {
+							final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
+									contentLength, new ProgressListenerConsole());
+							try (OutputStream outputStream = new BufferedOutputStream(
+									StreamUtils.openOutputStream(tmpZipFilePathString))) {
 
-							final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
-							IOUtils.copyLarge(inputStream, outputStream, buffer);
-						}
+								final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
+								IOUtils.copyLarge(inputStream, outputStream, buffer);
+							}
 
-						filePathString = PathUtils.computeParentPath(filePathString);
+							filePathString = PathUtils.computeParentPath(filePathString);
 
-						final String sevenZipExecutablePathString =
-								fileSynchronizerClientSettings.getSevenZipExecutablePathString();
-						final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
-								sevenZipExecutablePathString, tmpZipFilePathString, filePathString, true);
-						zipFileExtractor7z.work();
+							final String sevenZipExecutablePathString =
+									fileSynchronizerClientSettings.getSevenZipExecutablePathString();
+							final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
+									sevenZipExecutablePathString, tmpZipFilePathString, filePathString, true);
+							zipFileExtractor7z.work();
 
-						final boolean extractZipSuccess = zipFileExtractor7z.isSuccess();
-						if (extractZipSuccess) {
-							Logger.printStatus("Download request completed successfully for file path:" +
-									System.lineSeparator() + filePathString);
+							final boolean extractZipSuccess = zipFileExtractor7z.isSuccess();
+							if (extractZipSuccess) {
+								Logger.printStatus("Download request completed successfully for file path:" +
+										System.lineSeparator() + filePathString);
+							}
 						}
 					}
 				}
@@ -174,7 +185,7 @@ public class FileSynchronizerHttpsClient {
 
 		String tmpZipFilePathString = null;
 		try {
-			final OkHttpClient okHttpClient = createOkHttpClient();
+			Logger.printProgress("executing upload request");
 
 			Logger.printLine("File path string:");
 			final String filePathString = fileSynchronizerClientSettings.getFilePathString();
@@ -183,6 +194,8 @@ public class FileSynchronizerHttpsClient {
 			Logger.printLine("IP address: " + ipAddr);
 			final int port = fileSynchronizerClientSettings.getPort();
 			Logger.printLine("port: " + port);
+			final boolean ssl = fileSynchronizerClientSettings.isSsl();
+			Logger.printLine("ssl: " + ssl);
 			Logger.printLine("use sandbox: " + useSandbox);
 
 			final String fileName = PathUtils.computeFileName(filePathString);
@@ -200,8 +213,15 @@ public class FileSynchronizerHttpsClient {
 			final boolean createZipSuccess = zipFileCreator7z.isSuccess();
 			if (createZipSuccess) {
 
+				final OkHttpClient okHttpClient = createOkHttpClient(ssl);
+
 				final Request.Builder requestBuilder = new Request.Builder();
-				final String url = "https://" + ipAddr + ":" + port + "/upload";
+				final String url;
+				if (ssl) {
+					url = "https://" + ipAddr + ":" + port + "/upload";
+				} else {
+					url = "http://" + ipAddr + ":" + port + "/upload";
+				}
 				requestBuilder.url(url);
 				requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 				final String encodedFilePathString =
@@ -241,7 +261,8 @@ public class FileSynchronizerHttpsClient {
 		}
 	}
 
-	private static OkHttpClient createOkHttpClient() {
+	private static OkHttpClient createOkHttpClient(
+			final boolean ssl) {
 
 		final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
 
@@ -253,15 +274,18 @@ public class FileSynchronizerHttpsClient {
 				FactoryOkHttpBuilderProxyConfigurator.newInstance();
 		okHttpBuilderProxyConfigurator.configureProxy(okHttpClientBuilder);
 
-		final CustomSslContext customSslContext = FileSynchronizerUtils.createSslContext(
-				"ssl/client.keystore", "ssl/client.truststore");
-		final SSLContext sslContext = customSslContext.getSslContext();
-		final SSLSocketFactory socketFactory = sslContext.getSocketFactory();
-		final X509TrustManager x509TrustManager = customSslContext.getX509TrustManager();
-		okHttpClientBuilder.sslSocketFactory(socketFactory, x509TrustManager);
-		okHttpClientBuilder.hostnameVerifier((
-				hostname,
-				session) -> true);
+		if (ssl) {
+
+			final CustomSslContext customSslContext = FileSynchronizerUtils.createSslContext(
+					"ssl/client.keystore", "ssl/client.truststore");
+			final SSLContext sslContext = customSslContext.getSslContext();
+			final SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+			final X509TrustManager x509TrustManager = customSslContext.getX509TrustManager();
+			okHttpClientBuilder.sslSocketFactory(socketFactory, x509TrustManager);
+			okHttpClientBuilder.hostnameVerifier((
+					hostname,
+					session) -> true);
+		}
 
 		return okHttpClientBuilder.build();
 	}

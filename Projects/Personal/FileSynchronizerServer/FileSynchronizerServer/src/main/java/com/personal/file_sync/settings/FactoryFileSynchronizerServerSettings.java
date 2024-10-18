@@ -73,6 +73,12 @@ public final class FactoryFileSynchronizerServerSettings {
 					fileSynchronizerServerSettings = null;
 
 				} else {
+					boolean ssl = true;
+					final String sslString = cliArgsByNameMap.get("ssl");
+					if (StringUtils.isNotBlank(sslString)) {
+						ssl = Boolean.parseBoolean(sslString);
+					}
+
 					final String backlogString = cliArgsByNameMap.get("backlog");
 					final int backlog = StrUtils.tryParsePositiveInt(backlogString);
 					if (backlog < 0) {
@@ -95,7 +101,7 @@ public final class FactoryFileSynchronizerServerSettings {
 									"FileSynchronizer", "uploads");
 
 							fileSynchronizerServerSettings = new FileSynchronizerServerSettings(
-									ipAddr, port, backlog, threadCount, tmpFolderPathString,
+									ipAddr, port, ssl, backlog, threadCount, tmpFolderPathString,
 									sandboxFolderPathString, sevenZipExecutablePathString);
 
 						}

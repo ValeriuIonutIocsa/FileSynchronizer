@@ -13,6 +13,7 @@ public class FileSynchronizerClientSettings {
 	private final String filePathString;
 	private final String ipAddr;
 	private final int port;
+	private final boolean ssl;
 	private final String sevenZipExecutablePathString;
 
 	private final String tmpFilePathString;
@@ -23,6 +24,7 @@ public class FileSynchronizerClientSettings {
 			final String filePathString,
 			final String ipAddr,
 			final int port,
+			final boolean ssl,
 			final String sevenZipExecutablePathString) {
 
 		this.mode = mode;
@@ -30,6 +32,7 @@ public class FileSynchronizerClientSettings {
 		this.filePathString = filePathString;
 		this.ipAddr = ipAddr;
 		this.port = port;
+		this.ssl = ssl;
 		this.sevenZipExecutablePathString = sevenZipExecutablePathString;
 
 		tmpFilePathString = PathUtils.computePath(SystemUtils.USER_HOME,
@@ -59,6 +62,10 @@ public class FileSynchronizerClientSettings {
 
 	public int getPort() {
 		return port;
+	}
+
+	public boolean isSsl() {
+		return ssl;
 	}
 
 	public String getSevenZipExecutablePathString() {

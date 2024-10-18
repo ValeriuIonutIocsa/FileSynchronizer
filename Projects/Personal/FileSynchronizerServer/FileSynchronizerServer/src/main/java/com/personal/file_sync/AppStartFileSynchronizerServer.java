@@ -1,6 +1,6 @@
 package com.personal.file_sync;
 
-import com.personal.file_sync.dist.FileSynchronizerHttpsServer;
+import com.personal.file_sync.dist.FileSynchronizerHttpServer;
 import com.personal.file_sync.settings.FactoryFileSynchronizerServerSettings;
 import com.personal.file_sync.settings.FileSynchronizerServerSettings;
 import com.utils.log.progress.ProgressIndicatorConsole;
@@ -20,9 +20,9 @@ final class AppStartFileSynchronizerServer {
 				FactoryFileSynchronizerServerSettings.newInstance(args);
 		if (fileSynchronizerServerSettings != null) {
 
-			final FileSynchronizerHttpsServer fileSynchronizerHttpsServer =
-					new FileSynchronizerHttpsServer(fileSynchronizerServerSettings);
-			fileSynchronizerHttpsServer.start();
+			final FileSynchronizerHttpServer fileSynchronizerHttpServer =
+					new FileSynchronizerHttpServer(fileSynchronizerServerSettings);
+			fileSynchronizerHttpServer.start();
 		}
 	}
 }
