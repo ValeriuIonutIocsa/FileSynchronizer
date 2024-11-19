@@ -16,22 +16,20 @@ public class PatternWithCase implements Serializable {
 	private final String patternString;
 	private final boolean caseSensitive;
 
-	private final Pattern pattern;
+	private transient Pattern pattern;
 
 	PatternWithCase(
 			final String patternString,
-			final boolean caseSensitive,
-			final Pattern pattern) {
+			final boolean caseSensitive) {
 
 		this.patternString = patternString;
 		this.caseSensitive = caseSensitive;
-
-		this.pattern = pattern;
 	}
 
 	public boolean checkMatches(
 			final String string) {
 
+		final Pattern pattern = createPattern();
 		return string != null && pattern.matcher(string).matches();
 	}
 
@@ -41,6 +39,18 @@ public class PatternWithCase implements Serializable {
 
 		element.setAttribute(attributeName, patternString);
 		element.setAttribute(attributeName + "CaseSensitive", String.valueOf(caseSensitive));
+	}
+
+	public Pattern createPattern() {
+
+		if (pattern == null) {
+
+			pattern = RegexUtils.tryCompile(patternString, caseSensitive);
+			if (pattern == null) {
+				pattern = Pattern.compile("");
+			}
+		}
+		return pattern;
 	}
 
 	@Override
@@ -54,9 +64,5 @@ public class PatternWithCase implements Serializable {
 
 	public boolean isCaseSensitive() {
 		return caseSensitive;
-	}
-
-	public Pattern getPattern() {
-		return pattern;
 	}
 }
