@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.time.Instant;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import com.personal.file_sync.settings.FileSynchronizerServerSettings;
 import com.sun.net.httpserver.Headers;
@@ -39,8 +39,8 @@ class HttpHandlerDownload implements HttpHandler {
 		boolean useSandbox = false;
 
 		String tmpZipFilePathString = null;
-		final OutputStream resposeBodyOutputStream = httpExchange.getResponseBody();
-		try {
+		try (OutputStream resposeBodyOutputStream = httpExchange.getResponseBody()) {
+
 			Logger.printNewLine();
 			final Instant start = Instant.now();
 			Logger.printStatus("Received download request at " + StrUtils.createDisplayDateTimeString(start));
@@ -62,7 +62,7 @@ class HttpHandlerDownload implements HttpHandler {
 					final String sandboxFilePathString =
 							fileSynchronizerServerSettings.getSandboxFilePathString();
 					filePathString = PathUtils.computePath(sandboxFilePathString,
-							StringUtils.replace(filePathString, ":", ""));
+							Strings.CS.replace(filePathString, ":", ""));
 				}
 
 				Logger.printLine("File path:");
@@ -82,16 +82,19 @@ class HttpHandlerDownload implements HttpHandler {
 
 					final String sevenZipExecutablePathString =
 							fileSynchronizerServerSettings.getSevenZipExecutablePathString();
-					final ZipFileCreator7z zipFileCreator7z = new ZipFileCreator7z(
-							sevenZipExecutablePathString, filePathString, tmpZipFilePathString, false);
+					final int sevenZipThreadCount =
+							fileSynchronizerServerSettings.getSevenZipThreadCount();
+					final ZipFileCreator7z zipFileCreator7z =
+							new ZipFileCreator7z(sevenZipExecutablePathString, sevenZipThreadCount,
+									filePathString, tmpZipFilePathString, false);
 					zipFileCreator7z.work();
 
 					preparedRequestedFile = zipFileCreator7z.isSuccess();
 				}
 
-			} catch (final Exception exc) {
+			} catch (final Throwable throwable) {
 				Logger.printError("failed to prepare requested file");
-				Logger.printException(exc);
+				Logger.printThrowable(throwable);
 			}
 
 			Logger.printLine("preparedRequestedFile: " + preparedRequestedFile);
@@ -120,18 +123,11 @@ class HttpHandlerDownload implements HttpHandler {
 
 			Logger.printStatus("Response sent successfully after " + StrUtils.durationToString(start));
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to handle download request");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 
 		} finally {
-			try {
-				resposeBodyOutputStream.close();
-
-			} catch (final Exception exc) {
-				Logger.printError("failed to close response output stream");
-				Logger.printException(exc);
-			}
 			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, true, true);
 			}

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.time.Instant;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import com.personal.file_sync.settings.FileSynchronizerServerSettings;
 import com.sun.net.httpserver.Headers;
@@ -40,10 +40,10 @@ class HttpHandlerUpload implements HttpHandler {
 		boolean useSandbox = false;
 
 		String tmpZipFilePathString = null;
-		final OutputStream resposeBodyOutputStream = httpExchange.getResponseBody();
 		try {
+
 			Logger.printNewLine();
-			Instant start = Instant.now();
+			final Instant start = Instant.now();
 			Logger.printStatus("Received upload request at " + StrUtils.createDisplayDateTimeString(start));
 
 			boolean uploadCompletedSuccessfully = false;
@@ -62,7 +62,7 @@ class HttpHandlerUpload implements HttpHandler {
 					final String sandboxFilePathString =
 							fileSynchronizerServerSettings.getSandboxFilePathString();
 					filePathString = PathUtils.computePath(sandboxFilePathString,
-							StringUtils.replace(filePathString, ":", ""));
+							Strings.CS.replace(filePathString, ":", ""));
 				}
 
 				Logger.printLine("File path:");
@@ -94,8 +94,11 @@ class HttpHandlerUpload implements HttpHandler {
 
 					final String sevenZipExecutablePathString =
 							fileSynchronizerServerSettings.getSevenZipExecutablePathString();
-					final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
-							sevenZipExecutablePathString, tmpZipFilePathString, filePathString, true);
+					final int sevenZipThreadCount =
+							fileSynchronizerServerSettings.getSevenZipThreadCount();
+					final ZipFileExtractor7z zipFileExtractor7z =
+							new ZipFileExtractor7z(sevenZipExecutablePathString, sevenZipThreadCount,
+									tmpZipFilePathString, filePathString, true);
 					zipFileExtractor7z.work();
 
 					uploadCompletedSuccessfully = zipFileExtractor7z.isSuccess();
@@ -105,9 +108,9 @@ class HttpHandlerUpload implements HttpHandler {
 					}
 				}
 
-			} catch (final Exception exc) {
+			} catch (final Throwable throwable) {
 				Logger.printError("failed to complete the upload request");
-				Logger.printException(exc);
+				Logger.printThrowable(throwable);
 			}
 
 			final Headers responseHeaders = httpExchange.getResponseHeaders();
@@ -119,18 +122,11 @@ class HttpHandlerUpload implements HttpHandler {
 
 			Logger.printStatus("Response sent successfully after " + StrUtils.durationToString(start));
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to handle download request");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 
 		} finally {
-			try {
-				resposeBodyOutputStream.close();
-
-			} catch (final Exception exc) {
-				Logger.printError("failed to close response output stream");
-				Logger.printException(exc);
-			}
 			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}

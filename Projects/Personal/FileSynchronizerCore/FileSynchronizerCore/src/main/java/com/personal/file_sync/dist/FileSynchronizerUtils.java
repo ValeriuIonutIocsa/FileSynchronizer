@@ -2,7 +2,7 @@ package com.personal.file_sync.dist;
 
 import java.io.InputStream;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.utils.io.ResourceFileUtils;
@@ -33,24 +33,24 @@ final class FileSynchronizerUtils {
 					FactoryCustomSslContext.KeyStoreType.JKS, keyStoreInputStream,
 					PASSWORD, PASSWORD, trustStoreInputStream, PASSWORD);
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to create CustomSSLContext");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 		}
 		return customSslContext;
 	}
 
 	public static String encodeFilePathString(
-			String filePathString) {
+			final String filePathString) {
 
 		final String userHomePathString = SystemUtils.USER_HOME;
-		return StringUtils.replace(filePathString, userHomePathString, "%USER_HOME%");
+		return Strings.CS.replace(filePathString, userHomePathString, "%USER_HOME%");
 	}
 
 	public static String decodeFilePathString(
-			String filePathString) {
+			final String filePathString) {
 
 		final String userHomePathString = SystemUtils.USER_HOME;
-		return StringUtils.replace(filePathString, "%USER_HOME%", userHomePathString);
+		return Strings.CS.replace(filePathString, "%USER_HOME%", userHomePathString);
 	}
 }

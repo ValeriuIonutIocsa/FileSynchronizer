@@ -37,9 +37,9 @@ public final class FactoryFileSynchronizerSettings {
 				}
 			}
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to load the settings");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 		}
 		return fileSynchronizerSettings;
 	}

@@ -12,6 +12,7 @@ public class FileSynchronizerServerSettings {
 	private final String tmpFilePathString;
 	private final String sandboxFilePathString;
 	private final String sevenZipExecutablePathString;
+	private final int sevenZipThreadCount;
 
 	FileSynchronizerServerSettings(
 			final String ipAddr,
@@ -21,7 +22,8 @@ public class FileSynchronizerServerSettings {
 			final int threadCount,
 			final String tmpFilePathString,
 			final String sandboxFilePathString,
-			final String sevenZipExecutablePathString) {
+			final String sevenZipExecutablePathString,
+			final int sevenZipThreadCount) {
 
 		this.ipAddr = ipAddr;
 		this.port = port;
@@ -31,6 +33,7 @@ public class FileSynchronizerServerSettings {
 		this.tmpFilePathString = tmpFilePathString;
 		this.sandboxFilePathString = sandboxFilePathString;
 		this.sevenZipExecutablePathString = sevenZipExecutablePathString;
+		this.sevenZipThreadCount = sevenZipThreadCount;
 	}
 
 	@Override
@@ -68,5 +71,9 @@ public class FileSynchronizerServerSettings {
 
 	public String getSevenZipExecutablePathString() {
 		return sevenZipExecutablePathString;
+	}
+
+	public int getSevenZipThreadCount() {
+		return sevenZipThreadCount;
 	}
 }

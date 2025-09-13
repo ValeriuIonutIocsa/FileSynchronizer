@@ -49,9 +49,9 @@ public class FileSynchronizerSettings {
 				}
 			}
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to save the settings");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 		}
 	}
 

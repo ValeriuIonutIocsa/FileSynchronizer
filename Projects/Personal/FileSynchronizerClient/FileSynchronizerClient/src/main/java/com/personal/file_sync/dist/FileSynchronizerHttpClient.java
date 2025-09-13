@@ -92,6 +92,11 @@ public class FileSynchronizerHttpClient {
 			final boolean ssl = fileSynchronizerClientSettings.isSsl();
 			Logger.printLine("ssl: " + ssl);
 			Logger.printLine("use sandbox: " + useSandbox);
+			final String sevenZipExecutablePathString =
+					fileSynchronizerClientSettings.getSevenZipExecutablePathString();
+			Logger.printLine("sevenZipExecutablePathString: " + sevenZipExecutablePathString);
+			final int sevenZipThreadCount = fileSynchronizerClientSettings.getSevenZipThreadCount();
+			Logger.printLine("sevenZipThreadCount: " + sevenZipThreadCount);
 
 			final OkHttpClient okHttpClient = createOkHttpClient(ssl);
 
@@ -121,56 +126,50 @@ public class FileSynchronizerHttpClient {
 					Logger.printWarning("did not find the requested file on the server");
 
 				} else {
-					final ResponseBody responseBody = response.body();
-					if (responseBody == null) {
-						Logger.printError("empty response body");
+					Logger.printProgress("retrieving response body");
 
-					} else {
-						Logger.printProgress("retrieving response body");
+					final String contentLengthString = response.header("Content-length");
+					final long contentLength = StrUtils.tryParsePositiveLong(contentLengthString);
 
-						final String contentLengthString = response.header("Content-length");
-						final long contentLength = StrUtils.tryParsePositiveLong(contentLengthString);
+					final String fileName = PathUtils.computeFileName(filePathString);
 
-						final String fileName = PathUtils.computeFileName(filePathString);
+					final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
+					tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
+							String.valueOf(System.nanoTime()), fileName + ".zip");
 
-						final String tmpFilePathString = fileSynchronizerClientSettings.getTmpFilePathString();
-						tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
-								String.valueOf(System.nanoTime()), fileName + ".zip");
+					final boolean createParentFolderSuccess = FactoryFolderCreator.getInstance()
+							.createParentDirectories(tmpZipFilePathString, false, true);
+					if (createParentFolderSuccess) {
 
-						final boolean createParentFolderSuccess = FactoryFolderCreator.getInstance()
-								.createParentDirectories(tmpZipFilePathString, false, true);
-						if (createParentFolderSuccess) {
+						final ResponseBody responseBody = response.body();
+						final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
+								contentLength, new ProgressListenerConsole());
+						try (OutputStream outputStream = new BufferedOutputStream(
+								StreamUtils.openOutputStream(tmpZipFilePathString))) {
 
-							final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
-									contentLength, new ProgressListenerConsole());
-							try (OutputStream outputStream = new BufferedOutputStream(
-									StreamUtils.openOutputStream(tmpZipFilePathString))) {
+							final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
+							IOUtils.copyLarge(inputStream, outputStream, buffer);
+						}
 
-								final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
-								IOUtils.copyLarge(inputStream, outputStream, buffer);
-							}
+						filePathString = PathUtils.computeParentPath(filePathString);
 
-							filePathString = PathUtils.computeParentPath(filePathString);
+						final ZipFileExtractor7z zipFileExtractor7z =
+								new ZipFileExtractor7z(sevenZipExecutablePathString, sevenZipThreadCount,
+										tmpZipFilePathString, filePathString, true);
+						zipFileExtractor7z.work();
 
-							final String sevenZipExecutablePathString =
-									fileSynchronizerClientSettings.getSevenZipExecutablePathString();
-							final ZipFileExtractor7z zipFileExtractor7z = new ZipFileExtractor7z(
-									sevenZipExecutablePathString, tmpZipFilePathString, filePathString, true);
-							zipFileExtractor7z.work();
-
-							final boolean extractZipSuccess = zipFileExtractor7z.isSuccess();
-							if (extractZipSuccess) {
-								Logger.printStatus("Download request completed successfully for file path:" +
-										System.lineSeparator() + filePathString);
-							}
+						final boolean extractZipSuccess = zipFileExtractor7z.isSuccess();
+						if (extractZipSuccess) {
+							Logger.printStatus("Download request completed successfully for file path:" +
+									System.lineSeparator() + filePathString);
 						}
 					}
 				}
 			}
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to execute download request");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 
 		} finally {
 			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {
@@ -197,6 +196,11 @@ public class FileSynchronizerHttpClient {
 			final boolean ssl = fileSynchronizerClientSettings.isSsl();
 			Logger.printLine("ssl: " + ssl);
 			Logger.printLine("use sandbox: " + useSandbox);
+			final String sevenZipExecutablePathString =
+					fileSynchronizerClientSettings.getSevenZipExecutablePathString();
+			Logger.printLine("sevenZipExecutablePathString: " + sevenZipExecutablePathString);
+			final int sevenZipThreadCount = fileSynchronizerClientSettings.getSevenZipThreadCount();
+			Logger.printLine("sevenZipThreadCount: " + sevenZipThreadCount);
 
 			final String fileName = PathUtils.computeFileName(filePathString);
 
@@ -204,10 +208,9 @@ public class FileSynchronizerHttpClient {
 			tmpZipFilePathString = PathUtils.computePath(tmpFilePathString,
 					String.valueOf(System.nanoTime()), fileName + ".zip");
 
-			final String sevenZipExecutablePathString =
-					fileSynchronizerClientSettings.getSevenZipExecutablePathString();
-			final ZipFileCreator7z zipFileCreator7z = new ZipFileCreator7z(
-					sevenZipExecutablePathString, filePathString, tmpZipFilePathString, false);
+			final ZipFileCreator7z zipFileCreator7z =
+					new ZipFileCreator7z(sevenZipExecutablePathString, sevenZipThreadCount,
+							filePathString, tmpZipFilePathString, false);
 			zipFileCreator7z.work();
 
 			final boolean createZipSuccess = zipFileCreator7z.isSuccess();
@@ -250,9 +253,9 @@ public class FileSynchronizerHttpClient {
 				}
 			}
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to execute upload request");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 
 		} finally {
 			if (!useSandbox && IoUtils.fileExists(tmpZipFilePathString)) {

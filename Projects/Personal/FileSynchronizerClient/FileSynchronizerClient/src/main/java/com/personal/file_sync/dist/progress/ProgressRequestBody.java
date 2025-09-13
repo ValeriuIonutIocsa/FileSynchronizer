@@ -27,14 +27,14 @@ public class ProgressRequestBody extends RequestBody {
 		contentLength = computeContentLength(requestBody);
 	}
 
-	private long computeContentLength(
+	private static long computeContentLength(
 			final RequestBody requestBody) {
 
 		long contentLength = -1;
 		try {
 			contentLength = requestBody.contentLength();
-		} catch (final Exception exc) {
-			Logger.printException(exc);
+		} catch (final Throwable throwable) {
+			Logger.printThrowable(throwable);
 		}
 		return contentLength;
 	}

@@ -37,6 +37,11 @@ public class FileSynchronizerHttpServer {
 		Logger.printLine("backlog: " + backlog);
 		final int threadCount = fileSynchronizerServerSettings.getThreadCount();
 		Logger.printLine("threadCount: " + threadCount);
+		final String sevenZipExecutablePathString =
+				fileSynchronizerServerSettings.getSevenZipExecutablePathString();
+		Logger.printLine("sevenZipExecutablePathString: " + sevenZipExecutablePathString);
+		final int sevenZipThreadCount = fileSynchronizerServerSettings.getSevenZipThreadCount();
+		Logger.printLine("sevenZipThreadCount: " + sevenZipThreadCount);
 
 		final InetSocketAddress inetSocketAddress = new InetSocketAddress(ipAddr, port);
 
@@ -68,9 +73,9 @@ public class FileSynchronizerHttpServer {
 
 				httpsServer.start();
 
-			} catch (final Exception exc) {
+			} catch (final Throwable throwable) {
 				Logger.printError("failed to start HTTPS server");
-				Logger.printException(exc);
+				Logger.printThrowable(throwable);
 			}
 
 		} else {
@@ -84,9 +89,9 @@ public class FileSynchronizerHttpServer {
 
 				httpServer.start();
 
-			} catch (final Exception exc) {
+			} catch (final Throwable throwable) {
 				Logger.printError("failed to start HTTP server");
-				Logger.printException(exc);
+				Logger.printThrowable(throwable);
 			}
 		}
 	}

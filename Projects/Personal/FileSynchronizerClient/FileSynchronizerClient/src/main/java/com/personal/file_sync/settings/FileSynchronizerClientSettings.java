@@ -15,6 +15,7 @@ public class FileSynchronizerClientSettings {
 	private final int port;
 	private final boolean ssl;
 	private final String sevenZipExecutablePathString;
+	private final int sevenZipThreadCount;
 
 	private final String tmpFilePathString;
 
@@ -25,7 +26,8 @@ public class FileSynchronizerClientSettings {
 			final String ipAddr,
 			final int port,
 			final boolean ssl,
-			final String sevenZipExecutablePathString) {
+			final String sevenZipExecutablePathString,
+			final int sevenZipThreadCount) {
 
 		this.mode = mode;
 		this.useSandbox = useSandbox;
@@ -34,6 +36,7 @@ public class FileSynchronizerClientSettings {
 		this.port = port;
 		this.ssl = ssl;
 		this.sevenZipExecutablePathString = sevenZipExecutablePathString;
+		this.sevenZipThreadCount = sevenZipThreadCount;
 
 		tmpFilePathString = PathUtils.computePath(SystemUtils.USER_HOME,
 				"FileSynchronizer", "tmp", "client");
@@ -70,6 +73,10 @@ public class FileSynchronizerClientSettings {
 
 	public String getSevenZipExecutablePathString() {
 		return sevenZipExecutablePathString;
+	}
+
+	public int getSevenZipThreadCount() {
+		return sevenZipThreadCount;
 	}
 
 	public String getTmpFilePathString() {

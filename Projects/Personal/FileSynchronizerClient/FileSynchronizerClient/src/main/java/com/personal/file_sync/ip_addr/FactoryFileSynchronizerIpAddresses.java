@@ -17,7 +17,7 @@ public final class FactoryFileSynchronizerIpAddresses {
 	}
 
 	public static FileSynchronizerIpAddresses newInstance(
-            final String settingsFolderPathString) {
+			final String settingsFolderPathString) {
 
 		FileSynchronizerIpAddresses fileSynchronizerIpAddresses = null;
 		try {
@@ -47,9 +47,9 @@ public final class FactoryFileSynchronizerIpAddresses {
 				}
 			}
 
-		} catch (final Exception exc) {
+		} catch (final Throwable throwable) {
 			Logger.printError("failed to load the ip addresses");
-			Logger.printException(exc);
+			Logger.printThrowable(throwable);
 		}
 		return fileSynchronizerIpAddresses;
 	}

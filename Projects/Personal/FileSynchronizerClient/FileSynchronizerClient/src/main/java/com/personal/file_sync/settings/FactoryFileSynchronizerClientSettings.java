@@ -43,6 +43,7 @@ public final class FactoryFileSynchronizerClientSettings {
 			String ipAddr = null;
 			int port = -1;
 			boolean ssl = true;
+			int sevenZipThreadCount = -1;
 			String sevenZipExecutablePathString = null;
 			if (mode == Mode.CLEAN) {
 				keepGoing = true;
@@ -62,10 +63,10 @@ public final class FactoryFileSynchronizerClientSettings {
 					filePathString = PathUtils.computeAbsolutePath(null, null, filePathString);
 				}
 
-				sevenZipExecutablePathString = cliArgsByNameMap.get("7z_executable_path");
+				sevenZipExecutablePathString = cliArgsByNameMap.get("sevenZipExecutablePath");
 				if (StringUtils.isBlank(sevenZipExecutablePathString)) {
 
-					Logger.printWarning("missing or invalid CLI argument \"7z_executable_path\"");
+					Logger.printWarning("missing or invalid CLI argument \"sevenZipExecutablePath\"");
 					keepGoing = false;
 
 				} else {
@@ -116,6 +117,9 @@ public final class FactoryFileSynchronizerClientSettings {
 								ssl = Boolean.parseBoolean(sslString);
 							}
 
+							final String sevenZipThreadCountString = cliArgsByNameMap.get("sevenZipThreadCount");
+							sevenZipThreadCount = StrUtils.tryParsePositiveInt(sevenZipThreadCountString);
+
 							keepGoing = true;
 						}
 					}
@@ -123,7 +127,8 @@ public final class FactoryFileSynchronizerClientSettings {
 			}
 			if (keepGoing) {
 				fileSynchronizerClientSettings = new FileSynchronizerClientSettings(
-						mode, useSandbox, filePathString, ipAddr, port, ssl, sevenZipExecutablePathString);
+						mode, useSandbox, filePathString, ipAddr, port, ssl,
+						sevenZipExecutablePathString, sevenZipThreadCount);
 			}
 		}
 
