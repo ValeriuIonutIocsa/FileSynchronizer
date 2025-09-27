@@ -1,6 +1,5 @@
 package com.personal.file_sync.dist;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -142,10 +141,9 @@ public class FileSynchronizerHttpClient {
 					if (createParentFolderSuccess) {
 
 						final ResponseBody responseBody = response.body();
-						final InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
+						try (InputStream inputStream = new ProgressInputStream(responseBody.byteStream(),
 								contentLength, new ProgressListenerConsole());
-						try (OutputStream outputStream = new BufferedOutputStream(
-								StreamUtils.openOutputStream(tmpZipFilePathString))) {
+								OutputStream outputStream = StreamUtils.openOutputStream(tmpZipFilePathString)) {
 
 							final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
 							IOUtils.copyLarge(inputStream, outputStream, buffer);

@@ -2,8 +2,7 @@ final String projectPath = file('.').getAbsolutePath()
 final String rootDirPath = file('../../../../').getAbsolutePath()
 gradle.ext.rootDirPath = rootDirPath
 final String[] subProjectsRelativePaths = [
-        '/Projects/Personal/FileSynchronizerCore/FileSynchronizerCore',
-        '/Utils/Data/app-info/app-info'
+        '/Utils/Services/logger/logger'
 ]
 
 apply from: rootDirPath + '/common_settings.gradle'

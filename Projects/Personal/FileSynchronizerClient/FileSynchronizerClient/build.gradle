@@ -4,7 +4,8 @@ ext {
     jarFolderPath = 'C:\\LocalApps\\FileSynchronizer'
 
     subProjectNames = [
-            ':FileSynchronizerCore'
+            ':FileSynchronizerCore',
+            ':app-info'
     ]
     compileClassPaths = []
     compileJarFilePaths = []

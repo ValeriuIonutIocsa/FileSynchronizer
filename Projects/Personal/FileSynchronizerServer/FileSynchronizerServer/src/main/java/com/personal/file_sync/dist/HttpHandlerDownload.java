@@ -39,7 +39,7 @@ class HttpHandlerDownload implements HttpHandler {
 		boolean useSandbox = false;
 
 		String tmpZipFilePathString = null;
-		try (OutputStream resposeBodyOutputStream = httpExchange.getResponseBody()) {
+		try (httpExchange) {
 
 			Logger.printNewLine();
 			final Instant start = Instant.now();
@@ -103,7 +103,7 @@ class HttpHandlerDownload implements HttpHandler {
 			responseHeaders.set("preparedRequestedFile", String.valueOf(preparedRequestedFile));
 
 			if (!preparedRequestedFile) {
-				httpExchange.sendResponseHeaders(200, 0);
+				httpExchange.sendResponseHeaders(200, -1);
 
 			} else {
 				final long zipFileLength = new File(tmpZipFilePathString).length();
@@ -111,10 +111,11 @@ class HttpHandlerDownload implements HttpHandler {
 
 				try (InputStream inputStream = new ProgressInputStream(
 						StreamUtils.openInputStream(tmpZipFilePathString),
-						zipFileLength, new ProgressListenerConsole())) {
+						zipFileLength, new ProgressListenerConsole());
+						OutputStream outputStream = httpExchange.getResponseBody()) {
 
 					final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
-					IOUtils.copyLarge(inputStream, resposeBodyOutputStream, buffer);
+					IOUtils.copyLarge(inputStream, outputStream, buffer);
 				}
 			}
 

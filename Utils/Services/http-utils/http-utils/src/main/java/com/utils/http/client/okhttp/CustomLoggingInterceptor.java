@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.JsonReader;
@@ -35,9 +36,10 @@ class CustomLoggingInterceptor implements Interceptor {
 		this.formatJson = formatJson;
 	}
 
+	@NotNull
 	@Override
 	public Response intercept(
-			final Chain chain) throws IOException {
+			@NotNull final Chain chain) throws IOException {
 
 		return interceptChain(chain);
 	}

@@ -14,7 +14,7 @@ final class FileSynchronizerUtils {
 
 	private static final String PASSWORD = "CROCROCRO";
 
-	static final int BUFFER_SIZE = 8192;
+	static final int BUFFER_SIZE = 8_192;
 
 	private FileSynchronizerUtils() {
 	}

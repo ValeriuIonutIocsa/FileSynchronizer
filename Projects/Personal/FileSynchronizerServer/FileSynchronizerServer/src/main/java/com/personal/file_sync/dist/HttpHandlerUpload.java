@@ -1,6 +1,5 @@
 package com.personal.file_sync.dist;
 
-import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Instant;
@@ -40,7 +39,7 @@ class HttpHandlerUpload implements HttpHandler {
 		boolean useSandbox = false;
 
 		String tmpZipFilePathString = null;
-		try {
+		try (httpExchange) {
 
 			Logger.printNewLine();
 			final Instant start = Instant.now();
@@ -81,10 +80,9 @@ class HttpHandlerUpload implements HttpHandler {
 						.createParentDirectories(tmpZipFilePathString, false, true);
 				if (createParentDirectoriesSuccess) {
 
-					final InputStream inputStream = new ProgressInputStream(httpExchange.getRequestBody(),
+					try (InputStream inputStream = new ProgressInputStream(httpExchange.getRequestBody(),
 							contentLength, new ProgressListenerConsole());
-					try (OutputStream outputStream = new BufferedOutputStream(
-							StreamUtils.openOutputStream(tmpZipFilePathString))) {
+							OutputStream outputStream = StreamUtils.openOutputStream(tmpZipFilePathString)) {
 
 						final byte[] buffer = new byte[FileSynchronizerUtils.BUFFER_SIZE];
 						IOUtils.copyLarge(inputStream, outputStream, buffer);
@@ -118,7 +116,7 @@ class HttpHandlerUpload implements HttpHandler {
 			responseHeaders.set("uploadCompletedSuccessfully",
 					String.valueOf(uploadCompletedSuccessfully));
 
-			httpExchange.sendResponseHeaders(200, 0);
+			httpExchange.sendResponseHeaders(200, -1);
 
 			Logger.printStatus("Response sent successfully after " + StrUtils.durationToString(start));
 

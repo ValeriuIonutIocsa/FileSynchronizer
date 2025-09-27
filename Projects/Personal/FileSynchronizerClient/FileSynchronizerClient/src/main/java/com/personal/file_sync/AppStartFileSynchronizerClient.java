@@ -2,9 +2,11 @@ package com.personal.file_sync;
 
 import java.time.Instant;
 
+import com.personal.file_sync.app_info.FactoryAppInfoFileSynchronizerClient;
 import com.personal.file_sync.dist.FileSynchronizerHttpClient;
 import com.personal.file_sync.settings.FactoryFileSynchronizerClientSettings;
 import com.personal.file_sync.settings.FileSynchronizerClientSettings;
+import com.utils.app_info.AppInfo;
 import com.utils.io.file_deleters.FactoryFileDeleter;
 import com.utils.io.file_deleters.FileDeleterWin;
 import com.utils.io.folder_deleters.FactoryFolderDeleter;
@@ -26,6 +28,10 @@ final class AppStartFileSynchronizerClient {
 
 		FactoryFolderDeleter.setInstance(new FolderDeleterWin());
 		FactoryFileDeleter.setInstance(new FileDeleterWin());
+
+		final AppInfo appInfo = FactoryAppInfoFileSynchronizerClient.newInstance();
+		final String appStartMessage = appInfo.createAppStartMessage();
+		Logger.printProgress(appStartMessage);
 
 		final FileSynchronizerClientSettings fileSynchronizerClientSettings =
 				FactoryFileSynchronizerClientSettings.newInstance(args);
