@@ -15,6 +15,7 @@ import org.apache.commons.lang3.SystemUtils;
 import com.personal.file_sync.dist.progress.ProgressRequestBody;
 import com.personal.file_sync.settings.FileSynchronizerClientSettings;
 import com.personal.file_sync.settings.modes.Mode;
+import com.utils.concurrency.ThreadUtils;
 import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
 import com.utils.io.StreamUtils;
@@ -99,27 +100,42 @@ public class FileSynchronizerHttpClient {
 
 			final OkHttpClient okHttpClient = createOkHttpClient(ssl);
 
-			final Request.Builder requestBuilder = new Request.Builder();
 			final String url;
 			if (ssl) {
 				url = "https://" + ipAddr + ":" + port + "/download";
 			} else {
 				url = "http://" + ipAddr + ":" + port + "/download";
 			}
-			requestBuilder.url(url);
-			requestBuilder.header("useSandbox", String.valueOf(useSandbox));
 			final String encodedFilePathString =
 					FileSynchronizerUtils.encodeFilePathString(filePathString);
-			requestBuilder.header("filePathString", encodedFilePathString);
-			final Request request = requestBuilder.build();
 
-			final Call call = okHttpClient.newCall(request);
+			final Request prepareRequest = new Request.Builder().url(url)
+					.header("action", "prepare")
+					.header("useSandbox", String.valueOf(useSandbox))
+					.header("filePathString", encodedFilePathString)
+					.build();
+			final String jobId;
+			try (Response prepareResponse = okHttpClient.newCall(prepareRequest).execute()) {
+				jobId = prepareResponse.header("jobId");
+			}
+			if (jobId == null) {
+				throw new IllegalStateException("the server did not accept the download request");
+			}
+
+			Logger.printProgress("waiting for the server to prepare the requested file");
+			final boolean serverReady = waitForServer(okHttpClient, url, jobId);
+
+			final Request fetchRequest = new Request.Builder().url(url)
+					.header("action", "fetch")
+					.header("jobId", jobId)
+					.build();
+			final Call call = okHttpClient.newCall(fetchRequest);
 			try (Response response = call.execute()) {
 
 				final String preparedRequestedFileString =
 						response.header("preparedRequestedFile");
 				final boolean preparedRequestedFile =
-						Boolean.parseBoolean(preparedRequestedFileString);
+						serverReady && Boolean.parseBoolean(preparedRequestedFileString);
 
 				if (!preparedRequestedFile) {
 					Logger.printWarning("did not find the requested file on the server");
@@ -174,6 +190,34 @@ public class FileSynchronizerHttpClient {
 				FactoryFileDeleter.getInstance().deleteFile(tmpZipFilePathString, false, true);
 			}
 		}
+	}
+
+	private static boolean waitForServer(
+			final OkHttpClient okHttpClient,
+			final String url,
+			final String jobId) throws Exception {
+
+		boolean serverReady = false;
+		final Request statusRequest = new Request.Builder().url(url)
+				.header("action", "status")
+				.header("jobId", jobId)
+				.build();
+		while (true) {
+
+			final String status;
+			try (Response statusResponse = okHttpClient.newCall(statusRequest).execute()) {
+				status = statusResponse.header("status");
+			}
+			if ("READY".equals(status)) {
+				serverReady = true;
+				break;
+			}
+			if (!"PREPARING".equals(status)) {
+				break;
+			}
+			ThreadUtils.trySleep(1000);
+		}
+		return serverReady;
 	}
 
 	public void executeUploadRequest() {
