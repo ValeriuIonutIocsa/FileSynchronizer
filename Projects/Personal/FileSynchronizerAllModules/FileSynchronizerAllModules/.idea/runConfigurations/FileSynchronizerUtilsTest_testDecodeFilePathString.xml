@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" factoryName="JUnit" folderName="FileSynchronizerCore" name="FileSynchronizerUtilsTest.testDecodeFilePathString" nameIsGenerated="true" type="JUnit">
+    <configuration default="false" name="FileSynchronizerUtilsTest.testDecodeFilePathString" type="JUnit" factoryName="JUnit" folderName="FileSynchronizerCore"
+                   nameIsGenerated="true">
         <module name="FileSynchronizerAllModules.FileSynchronizerCore.test"/>
         <extension name="coverage">
             <pattern>
@@ -12,7 +13,7 @@
         <option name="METHOD_NAME" value="testDecodeFilePathString"/>
         <option name="TEST_OBJECT" value="method"/>
         <method v="2">
-            <option enabled="true" name="Make"/>
+            <option name="MakeProject" enabled="true"/>
         </method>
     </configuration>
 </component>
